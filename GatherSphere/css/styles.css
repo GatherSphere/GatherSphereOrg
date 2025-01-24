@@ -240,4 +240,40 @@ header {
 
 /* searchbar */
 
+.search-box { 
+    border: solid 1px #0D2F1C;
+    border-radius: 5px;
+    margin-top: 10px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    box-shadow: 1px 2px 3px #0D2F1C;
+}
+
+.search-box select {
+    padding: 10px;
+}
+
+.search-box input {
+    padding: 10px;
+}
+
+.search-box button {
+    padding: 10px;
+    background-color: #657445;
+}
+
+.search-box button:hover {
+    background-color: #0D2F1C;
+    color: #657445;
+    box-shadow: 1px 2px 3px #0D2F1C;
+}
+
+/* footer */ 
+footer {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #657445;
+    display: block;
+    text-align: center;
 }

@@ -33,14 +33,14 @@ h1 {
     margin-top: 20px;
 }
 
-.subforum-title {
+.title-row {
     background-color: #657445;
     padding: 5px;
     border-radius: 5px;
     margin: 4px;
 }
 
-.subforum-description *{
+.subforum-title *{
     margin-block: 0;
 }
 
@@ -187,4 +187,57 @@ header {
 .title {
     font-size: 45px;
     display: inline-block;
+}
+
+/* responsive navbar for smarthphones and tablets */
+@media screen and (max-width: 1024px) {
+   
+    .navigation {
+        max-height: auto;
+    }
+    
+    .nav-item a{
+        float: left;
+        display: inline;
+        text-align: center;
+        margin-inline: 3px;
+        font-size: 12px;
+        padding: 7px;
+    }
+
+    .nav-item a:hover{
+        background-color: #0D2F1C;
+        color: #657445;
+        border-radius: 5px;
+    }
+    
+    .hide {
+        display: none;
+    }
+    
+    .close-nav img{
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline;
+        cursor: pointer;
+    }
+
+    .nav-icon img {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline;
+        margin-right: 5px;
+        cursor: pointer;
+    }
+    
+    .title {
+        font-size: 45px;
+        display: inline;
+    }
+}
+
+/* searchbar */
+
 }

@@ -9,32 +9,42 @@
 <body>
     <header>
         <div class="navbar">
-            <nav class="navigation hide">
+            <nav class="navigation hide" id="navigation">
                 <ul class="nav-list">
-                    <span class="close-nav"><img src="./images/NavIcon.png" alt=" "></span>
+                    <span class="close-nav" onclick="hideNavBar()"><img src="./images/nav-close.png" alt=" "></span>
                     <li class="nav-item"><a href=" ">Home</a></li>
                     <li class="nav-item"><a href=" ">Popular</a></li>
                     <li class="nav-item"><a href=" ">Account</a></li>
 
                 </ul>
             </nav>
-            <a href=" " class="nav-icon"><img src="./images/NavIcon.png" alt= "Navigation"></a>
+            <a href="#" class="nav-icon" id="navBar" onclick="openNavBar()"><img src="./images/nav-open.png" alt= "Navigation"></a>
             <div class="title">GatherSphere</div>
+        </div>
+        <!--Search Box-->
+        <div class="search-box">
+            <select name="" id="" disabled="disabled">
+                <option value= "everything">Everything</option>
+                <option value= "titles">Titles</option>
+                <option value= "description">Descriptions</option>
+            </select>
+            <input type="text" name="q" id="" placeholder="Search the Sphere!">
+            <button><img src="./images/search-icon.png" alt=" " class="search"></button>
         </div>
     </header>
 
 <!--Base Forum Block-->
     <div class="container">
         <div class="subforum">
-            <div class="subforum-title">
+            <div class="title-row">
                 <h1>Most Recent</h1>
             </div>
             <div class= "subforum-row subforum-column">
                 <div class= "subforum-icon subforum-column center">
                     <img class="icon" src="./images/Globe.png" alt="Globe Icon">
                 </div>
-                <div class="subforum-description subforum-column">
-                    <h1><a href="">Subforum Description</a></h1>
+                <div class="subforum-title subforum-column">
+                    <h1><a href="">Subforum Title</a></h1>
                     <p>Description content: Lorem Ipsum Domine Etcetera</p>
                 </div>
                 <div class="subforum-stats subforum-column center">
@@ -51,15 +61,15 @@
 <!--More Forums-->
 <div class="container">
     <div class="subforum">
-        <div class="subforum-title">
+        <div class="title-row">
             <h1>Other Spheres</h1>
         </div>
         <div class= "subforum-row subforum-column">
             <div class= "subforum-icon subforum-column center">
                 <img class="icon" src="./images/Globe.png" alt="Globe Icon">
             </div>
-            <div class="subforum-description subforum-column">
-                <h1><a href="">Subforum Description</a></h1>
+            <div class="subforum-title subforum-column">
+                <h1><a href="">Subforum Title</a></h1>
                 <p>Description content: Lorem Ipsum Domine Etcetera</p>
             </div>
             <div class="subforum-stats subforum-column center">
@@ -76,8 +86,8 @@
             <div class= "subforum-icon subforum-column center">
                 <img class="icon" src="./images/Globe.png" alt="Globe Icon">
             </div>
-            <div class="subforum-description subforum-column">
-                <h1><a href="">Subforum Description</a></h1>
+            <div class="subforum-title subforum-column">
+                <h1><a href="">Subforum Title</a></h1>
                 <p>Description content: Lorem Ipsum Domine Etcetera</p>
             </div>
             <div class="subforum-stats subforum-column center">
@@ -94,8 +104,8 @@
             <div class= "subforum-icon subforum-column center">
                 <img class="icon" src="./images/Globe.png" alt="Globe Icon">
             </div>
-            <div class="subforum-description subforum-column">
-                <h1><a href="">Subforum Description</a></h1>
+            <div class="subforum-title subforum-column">
+                <h1><a href="">Subforum Title</a></h1>
                 <p>Description content: Lorem Ipsum Domine Etcetera</p>
             </div>
             <div class="subforum-stats subforum-column center">
@@ -112,8 +122,8 @@
             <div class= "subforum-icon subforum-column center">
                 <img class="icon" src="./images/Globe.png" alt="Globe Icon">
             </div>
-            <div class="subforum-description subforum-column">
-                <h1><a href="">Subforum Description</a></h1>
+            <div class="subforum-title subforum-column">
+                <h1><a href="">Subforum Title</a></h1>
                 <p>Description content: Lorem Ipsum Domine Etcetera</p>
             </div>
             <div class="subforum-stats subforum-column center">
@@ -130,8 +140,8 @@
             <div class= "subforum-icon subforum-column center">
                 <img class="icon" src="./images/Globe.png" alt="Globe Icon">
             </div>
-            <div class="subforum-description subforum-column">
-                <h1><a href="">Subforum Description</a></h1>
+            <div class="subforum-title subforum-column">
+                <h1><a href="">Subforum Title</a></h1>
                 <p>Description content: Lorem Ipsum Domine Etcetera</p>
             </div>
             <div class="subforum-stats subforum-column center">
@@ -148,8 +158,8 @@
             <div class= "subforum-icon subforum-column center">
                 <img class="icon" src="./images/Globe.png" alt="Globe Icon">
             </div>
-            <div class="subforum-description subforum-column">
-                <h1><a href="">Subforum Description</a></h1>
+            <div class="subforum-title subforum-column">
+                <h1><a href="">Subforum Title</a></h1>
                 <p>Description content: Lorem Ipsum Domine Etcetera</p>
             </div>
             <div class="subforum-stats subforum-column center">
@@ -166,26 +176,8 @@
             <div class= "subforum-icon subforum-column center">
                 <img class="icon" src="./images/Globe.png" alt="Globe Icon">
             </div>
-            <div class="subforum-description subforum-column">
-                <h1><a href="">Subforum Description</a></h1>
-                <p>Description content: Lorem Ipsum Domine Etcetera</p>
-            </div>
-            <div class="subforum-stats subforum-column center">
-                <span> X Posts | Y Topics </span>
-            </div>
-            <div class="subforum-lastpost subforum-column">
-                <b><a href="">Last post</a></b> by <a href="">UserName</a>
-                <br>
-                on <small>DD Mon YYYY</small>
-            </div>
-        </div>
-
-        <div class= "subforum-row subforum-column">
-            <div class= "subforum-icon subforum-column center">
-                <img class="icon" src="./images/Globe.png" alt="Globe Icon">
-            </div>
-            <div class="subforum-description subforum-column">
-                <h1><a href="">Subforum Description</a></h1>
+            <div class="subforum-title subforum-column">
+                <h1><a href="">Subforum Title</a></h1>
                 <p>Description content: Lorem Ipsum Domine Etcetera</p>
             </div>
             <div class="subforum-stats subforum-column center">
@@ -200,5 +192,6 @@
     </div>
 </div>
 
+<script src="./JavaScript/nav.js"></script>
 </body>
 </html>

@@ -189,6 +189,12 @@ header {
     display: inline-block;
 }
 
+.title-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
 /* responsive navbar for smarthphones and tablets */
 @media screen and (max-width: 1024px) {
    
@@ -276,4 +282,84 @@ footer {
     background-color: #657445;
     display: block;
     text-align: center;
+}
+
+/*#############################################################################*/
+
+/*forum-template.html*/
+
+.forum-title {
+    background-color: #657445;
+    color: #0D2F1C;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.create-post {
+    background-color: #A0522D;
+    color: #0D2F1C;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.create-post-button {
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.create-post-button:hover {
+    background-color: #0D2F1C;
+    color: #657445;
+    box-shadow: 1px 2px 3px #657445;
+}
+
+.posts-table {
+    width: 100%; 
+}
+
+.table-head {
+    background-color: #657445;
+    color: #0D2F1C;
+    font-weight: bolder;
+}
+
+.table-head th {
+    padding: 5px; 
+    margin: 2px; 
+    text-align: left;
+}
+
+.subject {
+    width: 60%;
+}
+
+.replies {
+    width: 20%;
+}
+
+.last-reply {
+    width: 20%;
+}
+
+.table-row {
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    border: 1px solid #0D2F1C;
+    box-shadow: 1px 2px 3px #0D2F1C;
+}
+
+.table-row td{
+    border: 1px solid #0D2F1C;
+    box-shadow: 1px 2px 3px #0D2F1C;
+    padding: 5px;
+    margin: 2px;
 }

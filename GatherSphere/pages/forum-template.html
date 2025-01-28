@@ -13,9 +13,9 @@
                 <ul class="nav-list">
                     <span class="close-nav" onclick="hideNavBar()"><img src="../images/nav-close.png" alt=" "></span>
                     <li class="nav-item"><a href="../Index.html">Home</a></li>
-                    <li class="nav-item"><a href=" ">Account</a></li>
-                    <li class="nav-item"><a href= " ">Login</a></li>
-
+                    <li class="nav-item hide"><a href="account.html">Account</a></li>
+                    <li class="nav-item hide"><a href= "login.html">Login/Sign Up</a></li>
+                    <!--Responsive nav... display account when signed in/login when not-->
                 </ul>
             </nav>
             <a href="#" class="nav-icon" id="navBar" onclick="openNavBar()"><img src="../images/nav-open.png" alt= "Navigation"></a>
@@ -25,8 +25,10 @@
         <div class="search-box">
             <select name="" id="">
                 <option value= "everything">Everything</option>
-                <option value= "titles">Titles</option>
+                <option value= "forum">Forums</option>
+                <option value= "post">Post Titles</option>
                 <option value= "description">Descriptions</option>
+                <option value= "user">Users</option>
             </select>
             <input type="text" name="q" id="" placeholder="Search the Sphere!">
             <button class="search">Search</button>
@@ -37,8 +39,21 @@
     <h2>Welcome to Sphere Title!</h2>
 </div>
 
+<!--Create Post Button-->
 <div class="create-post">
     <button class="create-post-button">Create Post</button>
+</div>
+
+<!--Hidden Post Creation Section-->
+<div class="post-creation hide" id="createPost">
+    <form action="" method="post">
+        <label for="post-title" class="post-form-title">Post Title:</label>
+        <input type="text" name="post-title" id="userPostTitle" placeholder="Title your post" required>
+        <label for="post-content" class="content-label">Post Content:</label>
+        <textarea name="post-content" id="post-content" cols="30" rows="10" placeholder="Write something here!" required></textarea>
+        <button class="submit-post">Submit Post</button>
+    </form>
+
 </div>
 
 <!--Posts Table-->

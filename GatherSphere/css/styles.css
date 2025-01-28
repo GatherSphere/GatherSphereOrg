@@ -322,6 +322,78 @@ footer {
     box-shadow: 1px 2px 3px #657445;
 }
 
+/* Hidden post creation form */
+.post-creation {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+    padding: 20px;
+    background-color: #657445;
+    border-radius: 5px;
+    box-shadow: 1px 2px 3px #0D2F1C;
+}
+
+
+.post-form {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 10px;
+    width: 100%; 
+    max-width: 600px; 
+}
+
+.form-row {
+    display: contents;
+}
+
+.post-form-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #0D2F1C;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.content-label {
+    font-size: 20px;
+    font-weight: bold;
+    color: #0D2F1C;
+    text-align: right;
+    padding-right: 10px;
+    padding-top: 10px;
+}
+
+#userPostTitle, 
+#post-content {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #0D2F1C;
+    width: 100%; 
+    box-sizing: border-box;
+}
+
+.submit-post {
+    grid-column: span 2;
+    padding: 10px;
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.submit-post:hover {
+    background-color: #0D2F1C;
+    color: #657445;
+    box-shadow: 1px 2px 3px #657445;
+}
+
+/*re-adding this here because CSS disregards the older one*/
+.hide {
+    display: none;
+}
+
+/*Posts Display Section*/
 .posts-table {
     width: 100%; 
 }
@@ -362,4 +434,287 @@ footer {
     box-shadow: 1px 2px 3px #0D2F1C;
     padding: 5px;
     margin: 2px;
+}
+
+/*##############################################################################*/
+
+/* login page */
+
+.login-title {
+    font-size: 45px;
+    display: flex;
+    justify-content: center;
+}
+
+.login-title a{
+    color: #0D2F1C;
+}
+.title-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #657445;
+    padding: 20px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.login-container form {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 10px;
+    width: 100%; 
+    max-width: 600px; 
+}
+
+.login-container label {
+    font-size: 20px;
+    font-weight: bold;
+    font-family: 'Trebuchet MS';
+    color: #0D2F1C;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.login-container input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #0D2F1C;
+    width: 100%; 
+    box-sizing: border-box;
+}
+
+.login-container button {
+    grid-column: 1 / span 2;
+    justify-self: center; 
+    padding: 10px;
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.login-container button:hover {
+    background-color: #0D2F1C;
+    color: #657445;
+    box-shadow: 1px 2px 3px #657445;
+}
+
+.no-account {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.no-account a {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.no-account a:hover {
+    text-decoration: underline;
+}
+
+/*##############################################################################*/
+
+/* sign-up page */
+
+.create-account {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #657445;
+    padding: 20px;
+    border-radius: 5px;
+    margin: 10px;
+} 
+
+.create-account form {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 10px;
+    width: 100%; 
+    max-width: 600px;
+}
+
+.create-account label {
+    font-size: 20px;
+    font-weight: bold;
+    font-family: 'Trebuchet MS';
+    color: #0D2F1C;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.create-account input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #0D2F1C;
+    width: 100%; 
+    box-sizing: border-box;
+}
+
+.create-account button {
+    grid-column: 1 / span 2;
+    justify-self: center; 
+    padding: 10px;
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.create-account button:hover {
+    background-color: #0D2F1C;
+    color: #657445;
+    box-shadow: 1px 2px 3px #657445;
+}
+
+/*##############################################################################*/
+
+/* Account Page */
+
+.account-title {
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.account-info-table {
+    width: 100%;
+    background-color: #657445;
+    border-radius: 5px;
+    margin: 10px; 
+}
+
+.account-info-table th {
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    padding: 5px;
+    margin: 2px;
+    text-align: left;
+}
+
+.account-info-table td {
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    padding: 5px;
+    margin: 2px;
+    text-align: left;
+}
+
+.account-info-table button {
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.account-info-table button:hover {
+   text-decoration: underline;
+}
+
+.account-divider {
+    background-color: #657445;
+    color: #0D2F1C;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+/*##############################################################################*/
+/* post-template.html */
+
+.post-container {
+    width: 100%;
+    background-color: #657445;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.post-title {
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.post-content {
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.post-author {
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.reply-form {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+    padding: 20px;
+    background-color: #657445;
+    border-radius: 5px;
+    box-shadow: 1px 2px 3px #0D2F1C;
+}
+
+.reply-form form {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 10px;
+    width: 100%; 
+    max-width: 600px; 
+}
+
+.reply-form button {
+    grid-column: span 2;
+    padding: 10px;
+    background-color: #8A9A5B;
+    color: #0D2F1C;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.reply-form button:hover {
+    background-color: #0D2F1C;
+    color: #657445;
+    box-shadow: 1px 2px 3px #657445;
+}
+
+.replies {
+    width: 100%;
+    background-color: #657445;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.replies table {
+    width: 100%;
 }

@@ -1,0 +1,75 @@
+<!doctype html>
+<head>
+    <title>GatherSphere</title>
+    <link rel="icon" href="../images/Globe.png" type=""image/x-icon">
+    <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <nav class="navigation hide" id="navigation">
+                <ul class="nav-list">
+                    <span class="close-nav" onclick="hideNavBar()"><img src="../images/nav-close.png" alt=" "></span>
+                    <li class="nav-item"><a href="../Index.html">Home</a></li>
+                    <li class="nav-item hide"><a href="account.html">Account</a></li>
+                    <li class="nav-item hide"><a href= "login.html">Login/Sign Up</a></li>
+                    <!--Responsive nav... display account when signed in/login when not-->
+                </ul>
+            </nav>
+            <a href="#" class="nav-icon" id="navBar" onclick="openNavBar()"><img src="../images/nav-open.png" alt= "Navigation"></a>
+            <div class="title">GatherSphere <img class="title-icon" src="../images/Globe.png" alt = " "></div>
+        </div>
+    </header>
+
+    <table class="post-container">
+        <tr>
+            <th class="post-title" colspan="2">Post Title</th>
+        </tr>
+        <tr>
+            <td class="post-content" colspan="2">Post Content KlhfbjkhfbalihbfalsbdflaskbflqwjhvflSHbcq;lwhfbvlashdcbwl.hdfb</td>
+        </tr>
+        <tr>
+            <td class="post-author">Written by <a href="#">UserName</a> on <small>DD Mon YYYY</small></td>
+        </tr>
+        <tr>
+            <th class="post-stats" colspan="2"> X Likes | Y Replies | <a>Report</a></th>
+        </tr>
+    </table>
+        <div class="reply-form">
+            <form action="" method="post">
+                <label for="reply-content" class="content-label">Reply Content:</label>
+                <textarea name="reply-content" id="reply-content" cols="30" rows="10" placeholder="Write a reply!" required></textarea>
+                <button class="submit-reply">Submit Reply</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="replies">
+        <table class="reply-table">
+            <thead>
+                <tr class="table-head">
+                    <th class="subject">Subject</th>
+                    <th class="author">Author</th>
+                    <th class="reply-time">Time</th>
+                </tr>
+            </thead>
+            <tbody>
+            <!--Start Post Template Block-->
+            <tr class="table-row">
+                <td class = "subject">Hello World!<br> 
+                <span class="reply-content">Lorem Ipsum Domine Etcetera</span></td>
+                <td class="author"> Reply by <b><a href="#">UserName</a></b></td>
+                <td class="reply-time">Reply from <small>DD Mon YYYY</small> at 00:00:00</td>
+            </tr>
+        </table>
+    </div>
+        <!--End Post Template Block-->
+
+     <footer>
+        <span>&copy; &nbsp; GatherSphere | All Rights Reserved</span>
+    </footer>
+    <script src="../JavaScript/nav.js"></script>
+</body>
+</html>

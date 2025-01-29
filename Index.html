@@ -38,27 +38,11 @@
 
 <!--Base Forum Block-->
     <div class="container">
-        <div class="subforum">
+        <div class="subforum" id="mostRecent">
             <div class="title-row">
                 <h1>Most Recent</h1>
             </div>
-            <div class= "subforum-row subforum-column">
-                <div class= "subforum-icon subforum-column center">
-                    <img class="icon" src="./images/Globe.png" alt="Globe Icon">
-                </div>
-                <div class="subforum-title subforum-column">
-                    <h1><a href="">Subforum Title</a></h1>
-                    <p>Description content: Lorem Ipsum Domine Etcetera</p>
-                </div>
-                <div class="subforum-stats subforum-column center">
-                    <span> X Posts | Y Topics </span>
-                </div>
-                <div class="subforum-lastpost subforum-column">
-                    <b><a href="">Last post</a></b> by <a href="">UserName</a>
-                    <br>
-                    on <small>DD Mon YYYY</small>
-                </div>
-            </div>
+            <!-- removed placeholder subforum-row -->
         </div>
     </div>
 <!--More Forums-->
@@ -199,5 +183,34 @@
     <span>&copy; &nbsp; GatherSphere | All Rights Reserved</span>
 </footer>
 <script src="./JavaScript/nav.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  fetch('/api/posts')
+    .then(response => response.json())
+    .then(data => {
+      const container = document.querySelector('#mostRecent');
+      data.forEach(post => {
+        const row = document.createElement('div');
+        row.classList.add('subforum-row', 'subforum-column');
+        row.innerHTML = `
+          <div class="subforum-icon subforum-column center">
+            <img class="icon" src="./images/Globe.png" alt="Icon">
+          </div>
+          <div class="subforum-title subforum-column">
+            <h1><a href="#">${post.subject}</a></h1>
+            <p>Some dynamic description</p>
+          </div>
+          <div class="subforum-stats subforum-column center">
+            <span>${post.replies} Replies | ${post.views} Views</span>
+          </div>
+          <div class="subforum-lastpost subforum-column">
+            <b><a href="#">Last post</a></b> by <a href="#">UserName</a><br>
+            on <small>DD Mon YYYY</small>
+          </div>`;
+        container.appendChild(row);
+      });
+    });
+});
+</script>
 </body>
 </html>

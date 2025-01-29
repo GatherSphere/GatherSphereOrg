@@ -1,0 +1,24 @@
+{
+  "name": "gathersphereorg",
+  "version": "1.0.0",
+  "description": "Gathersphere is a SWE project for OCC CIS 1512",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GatherSphere/GatherSphereOrg.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GatherSphere/GatherSphereOrg/issues"
+  },
+  "homepage": "https://github.com/GatherSphere/GatherSphereOrg#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "sqlite3": "^5.1.7"
+  }
+}

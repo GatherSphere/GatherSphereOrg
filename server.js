@@ -1,11 +1,15 @@
 const express = require('express');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
+const bcrypt = require('bcrypt');
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '/')));
+
+// Enable JSON/body parsing in Express
+app.use(express.json());
 
 // Initialize SQLite database
 const db = new sqlite3.Database('./database.db', (err) => {
@@ -32,6 +36,52 @@ app.get('/api/posts', (req, res) => {
   });
 });
 
+// Signup route
+app.post('/api/signup', async (req, res) => {
+  const { username, email, password } = req.body;
+  // TODO: Add validations
+  const createdAt = new Date().toISOString();
+  
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    db.run(
+      "INSERT INTO users (username, email, password, created_at) VALUES (?, ?, ?, ?)",
+      [username, email, hashedPassword, createdAt],
+      function (err) {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        res.json({ message: "Signup successful", userId: this.lastID });
+      }
+    );
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Login route
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  // TODO Add validations 
+  db.get(
+    "SELECT * FROM users WHERE username = ?",
+    [username],
+    async (err, row) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (!row) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      const match = await bcrypt.compare(password, row.password);
+      if (!match) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      // ...token or session handling...
+      res.json({ message: "Login successful", user: row.username });
+    }
+  );
+});
 
 // Start server
 app.listen(port, () => {

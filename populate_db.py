@@ -3,9 +3,10 @@ from faker import Faker
 import random
 from datetime import datetime
 import os
+import bcrypt
 
 fake = Faker()
-# REPLACE THIS WITH YOU DB FILE
+# REPLACE THIS WITH YOUR DB FILE
 DB_FILE = 'database.db'
 
 def get_connection():
@@ -64,6 +65,20 @@ def create_tables():
     conn.close()
     print("Tables created or verified successfully.")
 
+def hash_password(password):
+    """
+    Hashes a password using bcrypt.
+    
+    Args:
+        password (str): The plain text password.
+    
+    Returns:
+        str: The hashed password.
+    """
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed.decode('utf-8')
+
 def add_dummy_users(n=10):
     """
     Inserts 'n' dummy user records into the 'users' table.
@@ -78,8 +93,8 @@ def add_dummy_users(n=10):
     for _ in range(n):
         username = fake.unique.user_name()
         email = fake.unique.email()
-        password = fake.password(length=12)  # In production, always hash passwords!
-        created_at = fake.date_time_between(start_date='-2y', end_date='now').strftime('%Y-%m-%d %H:%M:%S')
+        password = hash_password(fake.password(length=12))  
+        created_at = fake.date_time_between(start_date='-2y', end_date='now').isoformat() + 'Z'
         users.append((username, email, password, created_at))
     
     try:
@@ -120,7 +135,7 @@ def add_dummy_posts(n=20):
         author_id = random.choice(user_ids)
         replies = random.randint(0, 100)
         views = random.randint(0, 1000)
-        created_at = fake.date_time_between(start_date='-2y', end_date='now').strftime('%Y-%m-%d %H:%M:%S')
+        created_at = fake.date_time_between(start_date='-2y', end_date='now').isoformat() + 'Z'
         posts.append((subject, content, author_id, replies, views, created_at))
     
     try:
@@ -146,7 +161,7 @@ def main():
         print("3. Add Dummy Posts")
         print("4. Exit")
 
-        choice = input("Enter your choice (1-9): ")
+        choice = input("Enter your choice (1-4): ")
 
         if choice == '1':
             create_tables()
@@ -166,7 +181,7 @@ def main():
             print("Exiting the database population script. Goodbye!")
             break
         else:
-            print("Invalid choice. Please select an option between 1 and 9.")
+            print("Invalid choice. Please select an option between 1 and 4.")
 
 if __name__ == "__main__":
     # Check if database file exists; if not, create tables

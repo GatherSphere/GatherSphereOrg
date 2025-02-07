@@ -81,17 +81,16 @@
 </div>
 
 <!--Hidden Post Creation Section-->
-<div class="post-creation " id="createPost">
-    <form action="" method="post">
+<div class="post-creation" id="createPost">
+    <form id="postForm">
         <label for="post-title" class="post-form-title">Post Title:</label>
         <input type="text" name="post-title" id="userPostTitle" placeholder="Title your post" required>
         <label for="post-content" class="content-label">Post Content:</label>
         <textarea name="post-content" id="post-content" cols="30" rows="10" placeholder="Write something here!" required></textarea>
         <label for="post-tags" class="post-form-title">Post Tags:</label>
         <input type="text" name="post-tags" id="userPostTags" placeholder="Keywords" required>
-        <button class="submit-post">Submit Post</button>
+        <button type="submit" class="submit-post">Submit Post</button>
     </form>
-
 </div>
 
 <!--Posts Table-->
@@ -104,87 +103,8 @@
                 <th class="last-reply">Last Reply</th>
             </tr>
         </thead>
-        <tbody>
-        <!--Start Post Template Block-->
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-        <!--End Post Template Block-->
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
-            <tr class="table-row">
-                <td class = "subject"><a href="#">Hello World!</a> <br> 
-                <span>Started by <b><a href="#">UserName</a></b></span></td>
-                <td class="replies"> X replies | Y likes <br> Z views </td>
-                <td class="last-reply">Last reply by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
-            </tr>
+        <tbody id="postsTableBody">
+            <!-- Posts will be loaded dynamically -->
         </tbody>
     </table>
 </div>
@@ -193,5 +113,75 @@
     <span>&copy; &nbsp; GatherSphere | All Rights Reserved</span>
 </footer>
 <script src="../JavaScript/nav.js"></script>
+<script>
+// Show/hide post creation form
+document.querySelector('.create-post-button').addEventListener('click', function() {
+    const createPost = document.getElementById('createPost');
+    createPost.style.display = createPost.style.display === 'none' ? 'flex' : 'none';
+});
+
+// Handle post creation
+document.getElementById('postForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const subject = document.getElementById('userPostTitle').value;
+    const content = document.getElementById('post-content').value;
+    const tags = document.getElementById('userPostTags').value;
+    
+    try {
+        const response = await fetch('/api/posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ subject, content, tags }),
+        });
+        const result = await response.json();
+        if (response.ok) {
+            alert('Post created successfully!');
+            document.getElementById('postForm').reset();
+            document.getElementById('createPost').style.display = 'none';
+            loadPosts(); // Refresh the posts list
+        } else {
+            alert(result.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    }
+});
+
+// Load posts
+function loadPosts() {
+    fetch('/api/posts')
+        .then(response => response.json())
+        .then(posts => {
+            const tbody = document.getElementById('postsTableBody');
+            tbody.innerHTML = '';
+            posts.forEach(post => {
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <td class="subject">
+                        <a href="../pages/post-template.html?id=${post.id}">${post.subject}</a><br>
+                        <span>Started by <b><a href="#">UserName</a></b></span>
+                    </td>
+                    <td class="replies">${post.replies} replies<br>${post.views} views</td>
+                    <td class="last-reply">
+                        Last reply by <b><a href="#">UserName</a></b><br>
+                        on <small>${new Date(post.created_at).toLocaleDateString()}</small>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error loading posts:', error));
+}
+
+// Initial load
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('createPost').style.display = 'none';
+    loadPosts();
+});
+</script>
 </body>
 </html>

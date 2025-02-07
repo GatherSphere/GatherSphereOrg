@@ -83,6 +83,28 @@ app.post('/api/login', (req, res) => {
   );
 });
 
+// Create new post route
+app.post('/api/posts', (req, res) => {
+  const { subject, content, tags } = req.body;
+  // TODO: Get real author_id from authentication
+  const author_id = 1; // Temporary default author
+  const created_at = new Date().toISOString();
+  
+  db.run(
+    "INSERT INTO posts (subject, content, author_id, replies, views, created_at) VALUES (?, ?, ?, 0, 0, ?)",
+    [subject, content, author_id, created_at],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ 
+        message: "Post created successfully", 
+        postId: this.lastID 
+      });
+    }
+  );
+});
+
 // Start server
 app.listen(port, () => {
   console.log(`Server is up on http://localhost:${port}`);

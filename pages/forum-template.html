@@ -2,7 +2,7 @@
 <head>
     <title>GatherSphere</title>
     <link rel="icon" href="../images/Globe.png" type=""image/x-icon">
-    <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    <link rel="stylesheet" type="text/css" href="../css/darkmode.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
 </head>
@@ -39,18 +39,56 @@
     <h2>Welcome to Sphere Title!</h2>
 </div>
 
+<!--Forum Settings Button for Admin Users-->
+<div class="forum-settings">
+    <button class="forum-settings-button">Edit Forum Settings</button>
+</div>
+
+<!--Forum Settings For Admin Users-->
+<div class="Forum Settings">
+    <table class="forum-settings-table">
+        <tr>
+            <th>Sphere Title:</th>
+            <td>Title_of_Sphere</td>
+            <td><button class="edit-button">[Edit]</button></td>
+        </tr>
+        <tr>
+            <th>Sphere Tags:</th>
+            <td><i>#Tags; #Forum;</i></td>
+            <td><button class="edit-button">[Edit]</button></td>
+        </tr>
+        <tr>
+            <th>Sphere Description:</th>
+            <td>What is this Sphere for? Who is it for? Any particular topics/important info?</td>
+            <td><button class="edit-button">[Edit]</button></td>
+        </tr>
+        <tr>
+            <th>Member List</th>
+            <td></td>
+            <td><button class="edit-button">[Edit]</button></td>
+        </tr>
+        <tr>
+            <th>Admin List</th>
+            <td></td>
+            <td><button class="edit-button">[Edit]</button></td>
+        </tr>
+    </table>
+</div>
+
 <!--Create Post Button-->
 <div class="create-post">
     <button class="create-post-button">Create Post</button>
 </div>
 
 <!--Hidden Post Creation Section-->
-<div class="post-creation hide" id="createPost">
+<div class="post-creation " id="createPost">
     <form action="" method="post">
         <label for="post-title" class="post-form-title">Post Title:</label>
         <input type="text" name="post-title" id="userPostTitle" placeholder="Title your post" required>
         <label for="post-content" class="content-label">Post Content:</label>
         <textarea name="post-content" id="post-content" cols="30" rows="10" placeholder="Write something here!" required></textarea>
+        <label for="post-tags" class="post-form-title">Post Tags:</label>
+        <input type="text" name="post-tags" id="userPostTags" placeholder="Keywords" required>
         <button class="submit-post">Submit Post</button>
     </form>
 

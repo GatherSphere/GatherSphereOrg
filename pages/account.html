@@ -2,7 +2,7 @@
 <head>
     <title>GatherSphere</title>
     <link rel="icon" href="../images/Globe.png" type=""image/x-icon">
-    <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    <link rel="stylesheet" type="text/css" href="../css/darkmode.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
 </head>
@@ -13,7 +13,7 @@
                 <ul class="nav-list">
                     <span class="close-nav" onclick="hideNavBar()"><img src="../images/nav-close.png" alt=" "></span>
                     <li class="nav-item"><a href="../Index.html">Home</a></li>
-                    <li class="nav-item hide"><a href="account.html">Account</a></li>
+                    <li class="nav-item"><a href="account.html">Account</a></li>
                     <li class="nav-item hide"><a href= "login.html">Login/Sign Up</a></li>
                     <!--Responsive nav... display account when signed in/login when not-->
                 </ul>
@@ -25,6 +25,11 @@
 <!--Account page title-->
 <div class="account-title">
     <h2>Hello Username!</h2>
+</div>
+
+<div class="profile-picture">
+    <img src="" alt="profile picture">
+    <button class="edit-profile-pic">Change Picture</button>
 </div>
 
 <table class="account-info-table">
@@ -39,10 +44,79 @@
         <td><button class="edit-button">[Edit]</button></td>
     </tr>
     <tr>
+        <th>Bio:</th>
+        <td id="userBio">Hi! I am a totally REAL user of GatherSphere
+            and I love it so much!</td>
+        <td><button class="edit-button">[Edit]</button></td>
+    </tr>
+    <tr>
+        <th>Location:</th>
+        <td id="userLocation">City, State, Country</td>
+        <td><button class="edit-button">[Edit]</button></td>
+    </tr>
+    <tr>
+        <th>Birthday</th>
+        <td id="userBirthday" colspan="2">MM/DD/YYYY</td>
+    </tr>
+    <tr>
         <th>Member Since:</th>
         <td id="joinDate" colspan="2">MM/DD/YYYY</td>
     </tr>
+    <tr>
+        <th id="userPreferences"><button>[Change Public Preferences]</button></th>
+    </tr>
+    
+    <div class="preference-form">
+    <tr>
+        <td> Display Email? </td>
+        <td> <input type="checkbox" id="emailPreference"> </td>
+    </tr>
+    <tr>
+        <td> Display Location? </td>
+        <td> <input type="checkbox" id="locationPreference"> </td>
+    </tr>
+    <tr>
+        <td> Display Birthday? </td>
+        <td> <input type="checkbox" id="birthdayPreference"> </td>
+    </tr>
+    <tr>
+        <td> Display Joined Spheres? </td>
+        <td> <input type="checkbox" id="spherePreference"> </td>
+    </tr>
+    <tr>
+        <td><button class="save-preference">[Save]</button></td>
+    </tr>
+    </div>
 </table>
+
+<!--Spheres Joined by and Created by User-->
+<div class="account-divider">
+    <h2>My Spheres</h2>
+    <button class="create-sphere">Create Sphere</button>
+</div>
+
+<!--Spheres Table-->
+<div class="user-spheres">
+    <table class="sphere-table">
+        <thead>
+            <tr class="table-head">
+                <th class="sphere">Sphere</th>
+                <th class="sphere-stats">Members/Postss</th>
+                <th class="last-post">Last Post</th>
+            </tr>
+        </thead>
+        <tbody>
+        <!--Start Sphere Template Block-->
+            <tr class="table-row">
+                <td class = "sphere"><a href="#">OCC CIS1512</a> <br> 
+                <span>Started by <b><a href="#">UserName</a></b></span></td>
+                <td class="sphere-stats"> X members | Y posts</td>
+                <td class="last-post">Last post by <b><a href="#">UserName</a></b> <br> on <small>DD Mon YYYY</small></td>
+            </tr>
+        <!--End Sphere Template Block-->
+        </tbody>
+    </table>
+</div>
 
 <div class="account-divider">
     <h2>My Posts</h2>

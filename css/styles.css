@@ -412,7 +412,7 @@ footer {
 }
 
 
-.post-form {
+#postForm {
     display: grid;
     grid-template-columns: auto 1fr;
     grid-gap: 10px;
@@ -768,13 +768,58 @@ margin-left: 16px;
 }
 
 .create-sphere:hover {
-background-color: #5E3B2E;
-color: #DBD9CD;
-box-shadow: 1px 2px 3px #6B5448;
-}
+    background-color: #5E3B2E;
+    color: #DBD9CD;
+    box-shadow: 1px 2px 3px #6B5448;
+    }
 
 .sphere-table {
     width: 100%; 
+}
+
+/* Hidden sphere creation form */
+.sphere-creation {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+    padding: 20px;
+    background-color: #6F7555;
+    border-radius: 5px;
+    box-shadow: 1px 2px 3px #5E3B2E;
+}
+
+#sphereForm {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 10px;
+    width: 100%; 
+    max-width: 600px; 
+}
+
+.sphere-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2F2E2C;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.content-label {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2F2E2C;
+    text-align: right;
+    padding-right: 10px;
+    padding-top: 10px;
+}
+
+#sphereTitle, 
+#sphereContent {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #2F2E2C;
+    width: 100%; 
+    box-sizing: border-box;
 }
 
 

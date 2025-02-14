@@ -96,6 +96,19 @@
     <button class="create-sphere">Create Sphere</button>
 </div>
 
+<!--Hidden Sphere Creation Section-->
+<div class="sphere-creation" id="createPost">
+    <form id="sphereForm">
+        <label for="sphere-title" class="sphere-title">Sphere Title:</label>
+        <input type="text" name="sphere-title" id="sphereTitle" placeholder="Title your Sphere" required>
+        <label for="sphere-bio" class="content-label">Sphere Bio:</label>
+        <textarea name="sphere-bio" id="sphereContent" cols="30" rows="10" placeholder="Write something here!" required></textarea>
+        <label for="sphere-tags" class="content-label">Sphere Tags:</label>
+        <input type="text" name="sphere-tags" id="sphereTags" placeholder="Keywords" required>
+        <button type="create" class="create-sphere" id="createSphereButton">Create My Sphere!</button>
+    </form>
+</div>
+
 <!--Spheres Table-->
 <div class="user-spheres">
     <table class="sphere-table">

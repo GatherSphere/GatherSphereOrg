@@ -25,7 +25,7 @@
     </header>
 <!--Account page title-->
 <div class="account-title">
-    <h2>Hello Username!</h2>
+    <h2 id="welcomeMessage">Hello Username!</h2>
 </div>
 
 <div class="profile-picture">
@@ -37,57 +37,57 @@
     <tr>
         <th>My Username:</th>
         <td id="userID">Username</td>
-        <td><button class="edit-button">[Edit]</button></td>
+        <td><button class="edit-button" data-field="username" disabled>[Edit]</button></td>
     </tr>
     <tr>
         <th>My Email:</th>
-        <td id="userEmail">Email</td>
-        <td><button class="edit-button">[Edit]</button></td>
+        <td id="userEmail" contenteditable="false">Email</td>
+        <td><button class="edit-button" data-field="email">[Edit]</button></td>
     </tr>
     <tr>
         <th>Bio:</th>
-        <td id="userBio">Hi! I am a totally REAL user of GatherSphere
-            and I love it so much!</td>
-        <td><button class="edit-button">[Edit]</button></td>
+        <td id="userBio" contenteditable="false">Hi! I am a totally REAL user of GatherSphere</td>
+        <td><button class="edit-button" data-field="bio">[Edit]</button></td>
     </tr>
     <tr>
         <th>Location:</th>
-        <td id="userLocation">City, State, Country</td>
-        <td><button class="edit-button">[Edit]</button></td>
+        <td id="userLocation" contenteditable="false">City, State, Country</td>
+        <td><button class="edit-button" data-field="location">[Edit]</button></td>
     </tr>
     <tr>
-        <th>Birthday</th>
-        <td id="userBirthday" colspan="2">MM/DD/YYYY</td>
+        <th>Birthday:</th>
+        <td id="userBirthday" contenteditable="false">MM/DD/YYYY</td>
+        <td><button class="edit-button" data-field="birthday">[Edit]</button></td>
     </tr>
     <tr>
         <th>Member Since:</th>
-        <td id="joinDate" colspan="2">MM/DD/YYYY</td>
+        <td id="joinDate" colspan="2"></td>
     </tr>
     <tr>
-        <th id="userPreferences"><button>[Change Public Preferences]</button></th>
+        <th colspan="3" id="userPreferences"><button class="preferences-toggle">[Change Public Preferences]</button></th>
     </tr>
     
-    <div class="preference-form">
-    <tr>
-        <td> Display Email? </td>
-        <td> <input type="checkbox" id="emailPreference"> </td>
-    </tr>
-    <tr>
-        <td> Display Location? </td>
-        <td> <input type="checkbox" id="locationPreference"> </td>
-    </tr>
-    <tr>
-        <td> Display Birthday? </td>
-        <td> <input type="checkbox" id="birthdayPreference"> </td>
-    </tr>
-    <tr>
-        <td> Display Joined Spheres? </td>
-        <td> <input type="checkbox" id="spherePreference"> </td>
-    </tr>
-    <tr>
-        <td><button class="save-preference">[Save]</button></td>
-    </tr>
-    </div>
+    <tbody class="preference-form" style="display: none;">
+        <tr>
+            <td>Display Email?</td>
+            <td colspan="2"><input type="checkbox" id="emailPreference"></td>
+        </tr>
+        <tr>
+            <td>Display Location?</td>
+            <td colspan="2"><input type="checkbox" id="locationPreference"></td>
+        </tr>
+        <tr>
+            <td>Display Birthday?</td>
+            <td colspan="2"><input type="checkbox" id="birthdayPreference"></td>
+        </tr>
+        <tr>
+            <td>Display Joined Spheres?</td>
+            <td colspan="2"><input type="checkbox" id="spherePreference"></td>
+        </tr>
+        <tr>
+            <td colspan="3"><button class="save-preference">[Save Preferences]</button></td>
+        </tr>
+    </tbody>
 </table>
 
 <!--Spheres Joined by and Created by User-->
@@ -187,5 +187,155 @@
     <span>&copy; &nbsp; GatherSphere | All Rights Reserved</span>
 </footer>
 <script src="../JavaScript/nav.js"></script>
+<script>
+// Get user info from localStorage
+const authToken = localStorage.getItem('authToken');
+const userId = localStorage.getItem('userId');
+
+// Redirect to login if no auth token
+if (!authToken) {
+    window.location.href = 'login.html';
+}
+
+// Load user data with authentication
+async function loadUserData() {
+    try {
+        const response = await fetch(`/api/user/${userId}`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.status === 401 || response.status === 403) {
+            // Token expired or invalid
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const user = await response.json();
+        document.getElementById('welcomeMessage').textContent = `Hello ${user.username}!`;
+        document.getElementById('userID').textContent = user.username;
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('userBio').textContent = user.bio || 'No bio yet';
+        document.getElementById('userLocation').textContent = user.location || 'Location not set';
+        document.getElementById('userBirthday').textContent = user.birthday || 'Birthday not set';
+        document.getElementById('joinDate').textContent = new Date(user.created_at).toLocaleDateString();
+        
+        // Set preference checkboxes
+        document.getElementById('emailPreference').checked = user.email_public;
+        document.getElementById('locationPreference').checked = user.location_public;
+        document.getElementById('birthdayPreference').checked = user.birthday_public;
+        document.getElementById('spherePreference').checked = user.spheres_public;
+    } catch (error) {
+        console.error('Error loading user data:', error);
+    }
+}
+
+// Handle edit buttons
+document.querySelectorAll('.edit-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const field = this.getAttribute('data-field');
+        const td = document.getElementById('user' + field.charAt(0).toUpperCase() + field.slice(1));
+        
+        if (this.textContent === '[Edit]') {
+            td.contentEditable = true;
+            td.focus();
+            td.classList.add('editing');
+            this.textContent = '[Save]';
+        } else {
+            td.contentEditable = false;
+            td.classList.remove('editing');
+            this.textContent = '[Edit]';
+            
+            // Save the changes with authentication
+            const updatedData = {};
+            updatedData[field] = td.textContent;
+            
+            fetch(`/api/user/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify(updatedData)
+            })
+            .then(response => {
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('username');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result && result.error) {
+                    alert('Error updating profile: ' + result.error);
+                    loadUserData();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to update profile');
+                loadUserData();
+            });
+        }
+    });
+});
+
+// Toggle preferences form
+document.querySelector('.preferences-toggle').addEventListener('click', function() {
+    const preferencesForm = document.querySelector('.preference-form');
+    preferencesForm.style.display = preferencesForm.style.display === 'none' ? 'table-row-group' : 'none';
+});
+
+// Handle preferences save with authentication
+document.querySelector('.save-preference').addEventListener('click', function() {
+    const preferences = {
+        email_public: document.getElementById('emailPreference').checked,
+        location_public: document.getElementById('locationPreference').checked,
+        birthday_public: document.getElementById('birthdayPreference').checked,
+        spheres_public: document.getElementById('spherePreference').checked
+    };
+    
+    fetch(`/api/user/${userId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(preferences)
+    })
+    .then(response => {
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+            return;
+        }
+        return response.json();
+    })
+    .then(result => {
+        if (result && result.error) {
+            alert('Error updating preferences: ' + result.error);
+        } else if (result) {
+            alert('Preferences updated successfully');
+            document.querySelector('.preference-form').style.display = 'none';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update preferences');
+    });
+});
+
+// Initial load
+loadUserData();
+</script>
 </body>
 </html>

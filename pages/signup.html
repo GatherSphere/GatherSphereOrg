@@ -1,65 +1,92 @@
 <!doctype html>
 <head>
     <title>GatherSphere</title>
-    <link rel="icon" href="../images/Globe.png" type=""image/x-icon">
+    <link rel="icon" href="../images/Globe.png" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="../css/darkmode.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
 </head>
 <body>
     <header>
-        <div class="login-title">GatherSphere <img class="title-icon" src="../images/Globe.png" alt = " "></div>
+        <div class="login-title">GatherSphere<img class="title-icon" src="../images/Globe.png" alt=" "></div>
     </header>
 
     <div class="create-account">
-        <form id="signupForm" action="" method="post">
+        <form id="signupForm">
             <label for="username">Username:</label>
-            <input type="text" name="username" id="username" placeholder="Enter your username" required>
+            <input type="text" name="username" id="username" placeholder="Choose a username" required>
             <label for="email">Email:</label>
             <input type="email" name="email" id="email" placeholder="Enter your email" required>
             <label for="password">Password:</label>
-            <input type="password" name="password" id="password" placeholder="Enter your password" required>
-            <label for="password">Confirm Password:</label>
-            <input type="password" name="password" id="password" placeholder="Confirm your password" required>
-            <button type="submit" class="login-button">Create Account</button>
+            <input type="password" name="password" id="password" placeholder="Choose a password" required>
+            <label for="confirm-password">Confirm Password:</label>
+            <input type="password" name="confirm-password" id="confirm-password" placeholder="Confirm your password" required>
+            <button type="submit" class="create-account">Create Account</button>
         </form>
     </div>
     <div class="no-account">
-        <h3>Already have an account?<a href="login.html">Log In</a></h3>
+        <h3>Already have an account? <a href="login.html">Login</a></h3>
     </div>
-     <footer>
+    <footer>
         <span>&copy; &nbsp; GatherSphere | All Rights Reserved</span>
-    
     </footer>
     <script src="../JavaScript/nav.js"></script>
     <script>
-    // Handle signup form submission
-    document.getElementById('signupForm').addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        try {
-            const response = await fetch('/api/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, email, password }),
-            });
-            const result = await response.json();
-            if (response.ok) {
-                alert(result.message);
-                window.location.href = 'login.html';
-            } else {
-                alert(result.error);
+        document.getElementById('signupForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            // Basic validation
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-        }
-    });
+
+            try {
+                // First create the account
+                const signupResponse = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password }),
+                });
+                const signupResult = await signupResponse.json();
+
+                if (signupResponse.ok) {
+                    // If signup successful, automatically log in
+                    const loginResponse = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password }),
+                    });
+                    const loginResult = await loginResponse.json();
+
+                    if (loginResponse.ok) {
+                        // Store auth token and user info
+                        localStorage.setItem('authToken', loginResult.token);
+                        localStorage.setItem('userId', loginResult.user.id);
+                        localStorage.setItem('username', loginResult.user.username);
+                        
+                        // Redirect to account page
+                        window.location.href = 'account.html';
+                    } else {
+                        alert(loginResult.error);
+                    }
+                } else {
+                    alert(signupResult.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
     </script>
 </body>
 </html>

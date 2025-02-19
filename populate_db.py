@@ -32,7 +32,14 @@ def create_tables():
             username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
-            created_at TEXT NOT NULL
+            bio TEXT,
+            location TEXT,
+            birthday TEXT,
+            created_at TEXT NOT NULL,
+            email_public BOOLEAN DEFAULT 0,
+            location_public BOOLEAN DEFAULT 0,
+            birthday_public BOOLEAN DEFAULT 0,
+            spheres_public BOOLEAN DEFAULT 1
         );
     """)
 
@@ -42,9 +49,10 @@ def create_tables():
             subject TEXT NOT NULL,
             content TEXT NOT NULL,
             author_id INTEGER NOT NULL,
-            replies INTEGER DEFAULT 0,
-            views INTEGER DEFAULT 0,
             created_at TEXT NOT NULL,
+            views INTEGER DEFAULT 0,
+            replies INTEGER DEFAULT 0,
+            tags TEXT,
             FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
         );
     """)
@@ -58,6 +66,30 @@ def create_tables():
             created_at TEXT NOT NULL,
             FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
             FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS spheres (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            description TEXT,
+            created_at TEXT NOT NULL,
+            creator_id INTEGER NOT NULL,
+            tags TEXT,
+            FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS sphere_members (
+            sphere_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            role TEXT NOT NULL DEFAULT 'member',
+            joined_at TEXT NOT NULL,
+            PRIMARY KEY (sphere_id, user_id),
+            FOREIGN KEY (sphere_id) REFERENCES spheres(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
     """)
 

@@ -2,7 +2,7 @@
 <head>
     <title>GatherSphere</title>
     <link rel="icon" href="../images/Globe.png" type=""image/x-icon">
-    <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    <link rel="stylesheet" type="text/css" href="../css/darkmode.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
 </head>
@@ -114,15 +114,25 @@
 </footer>
 <script src="../JavaScript/nav.js"></script>
 <script>
+// Check auth status
+const authToken = localStorage.getItem('authToken');
+
 // Show/hide post creation form
 document.querySelector('.create-post-button').addEventListener('click', function() {
     const createPost = document.getElementById('createPost');
     createPost.style.display = createPost.style.display === 'none' ? 'flex' : 'none';
 });
 
-// Handle post creation
+// Handle post creation with authentication
 document.getElementById('postForm').addEventListener('submit', async function(event) {
     event.preventDefault();
+    
+    if (!authToken) {
+        alert('Please log in to create a post');
+        window.location.href = 'login.html';
+        return;
+    }
+
     const subject = document.getElementById('userPostTitle').value;
     const content = document.getElementById('post-content').value;
     const tags = document.getElementById('userPostTags').value;
@@ -132,9 +142,19 @@ document.getElementById('postForm').addEventListener('submit', async function(ev
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
             },
             body: JSON.stringify({ subject, content, tags }),
         });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+            return;
+        }
+
         const result = await response.json();
         if (response.ok) {
             alert('Post created successfully!');
@@ -150,7 +170,7 @@ document.getElementById('postForm').addEventListener('submit', async function(ev
     }
 });
 
-// Load posts
+// Load posts with auth check for actions
 function loadPosts() {
     fetch('/api/posts')
         .then(response => response.json())
@@ -162,12 +182,12 @@ function loadPosts() {
                 row.className = 'table-row';
                 row.innerHTML = `
                     <td class="subject">
-                        <a href="../pages/post-template.html?id=${post.id}">${post.subject}</a><br>
-                        <span>Started by <b><a href="#">UserName</a></b></span>
+                        <a href="post-view.html?id=${post.id}">${post.subject}</a><br>
+                        <span>Started by <b><a href="#">${post.author_name || 'UserName'}</a></b></span>
                     </td>
                     <td class="replies">${post.replies} replies<br>${post.views} views</td>
                     <td class="last-reply">
-                        Last reply by <b><a href="#">UserName</a></b><br>
+                        Last reply by <b><a href="#">${post.author_name || 'UserName'}</a></b><br>
                         on <small>${new Date(post.created_at).toLocaleDateString()}</small>
                     </td>
                 `;
@@ -177,8 +197,12 @@ function loadPosts() {
         .catch(error => console.error('Error loading posts:', error));
 }
 
-// Initial load
+// Show/hide create post button based on auth status
 document.addEventListener('DOMContentLoaded', () => {
+    const createPostButton = document.querySelector('.create-post-button');
+    if (createPostButton) {
+        createPostButton.style.display = authToken ? 'block' : 'none';
+    }
     document.getElementById('createPost').style.display = 'none';
     loadPosts();
 });

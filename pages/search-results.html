@@ -32,7 +32,7 @@
                 <option value= "description">Descriptions</option>
                 <option value= "user">Users</option>
             </select>
-            <input type="text" name="q" id="" placeholder="Search the Sphere!">
+            <input type="text" name="q" id="searchQuery" placeholder="Search the Sphere!">
             <button class="search">Search</button>
             <a href="./pages/forum-template.html"><button class="search">View Forums</button></a>
         </div>
@@ -132,5 +132,201 @@
         <span>&copy; &nbsp; GatherSphere | All Rights Reserved</span>
     </footer>
     <script src="../JavaScript/nav.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get search parameters from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    const filter = urlParams.get('filter') || 'everything';
+    
+    // Set the search form with current query
+    document.getElementById('searchQuery').value = query;
+    document.querySelector('select').value = filter;
+    
+    // Check authentication status and update UI accordingly
+    const authToken = localStorage.getItem('authToken');
+    const username = localStorage.getItem('username');
+    
+    // Update navigation based on login status
+    const accountNavItem = document.querySelector('.nav-item:nth-child(2)');
+    const loginNavItem = document.querySelector('.nav-item:nth-child(3)');
+    const logoutNavItem = document.querySelector('#logoutItem');
+    
+    if (authToken) {
+        accountNavItem.classList.remove('hide');
+        loginNavItem.classList.add('hide');
+        logoutNavItem.classList.remove('hide');
+    } else {
+        accountNavItem.classList.add('hide');
+        loginNavItem.classList.remove('hide');
+        logoutNavItem.classList.add('hide');
+    }
+    
+    // Perform search
+    performSearch(query, filter);
+    
+    // Add search button functionality
+    document.querySelector('.search-box button').addEventListener('click', function() {
+        const newQuery = document.getElementById('searchQuery').value.trim();
+        const newFilter = document.querySelector('select').value;
+        if (newQuery) {
+            window.location.href = `search-results.html?q=${encodeURIComponent(newQuery)}&filter=${encodeURIComponent(newFilter)}`;
+        }
+    });
+});
+
+async function performSearch(query, filter) {
+    if (!query) return;
+    
+    try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&filter=${encodeURIComponent(filter)}`);
+        const results = await response.json();
+        
+        // Group results by type
+        const sphereResults = results.filter(r => r.type === 'sphere');
+        const postResults = results.filter(r => r.type === 'post');
+        const userResults = results.filter(r => r.type === 'user');
+        
+        // Display results based on filter
+        if (filter === 'everything' || filter === 'forum') {
+            displaySphereResults(sphereResults);
+        }
+        
+        if (filter === 'everything' || filter === 'post') {
+            displayPostResults(postResults);
+        }
+        
+        if (filter === 'everything' || filter === 'description') {
+            displayDescriptionResults(sphereResults);
+        }
+        
+        if (filter === 'everything' || filter === 'user') {
+            displayUserResults(userResults);
+        }
+        
+    } catch (error) {
+        console.error('Error performing search:', error);
+        alert('Failed to perform search. Please try again.');
+    }
+}
+
+function displaySphereResults(results) {
+    const container = document.querySelector('.sphere-search-results');
+    container.innerHTML = '';
+    
+    if (results.length === 0) {
+        container.innerHTML = '<p class="no-results">No spheres found matching your search.</p>';
+        return;
+    }
+    
+    results.forEach(sphere => {
+        const row = document.createElement('div');
+        row.className = 'subforum-row subforum-column';
+        row.innerHTML = `
+            <div class="subforum-icon subforum-column center">
+                <img class="icon" src="../images/Globe.png" alt="Globe Icon">
+            </div>
+            <div class="subforum-title subforum-column">
+                <h1><a href="forum-template.html?id=${sphere.id}">${sphere.title}</a></h1>
+                <p>${sphere.content || 'No description available'}</p>
+            </div>
+            <div class="subforum-stats subforum-column center">
+                <span>${sphere.member_count || 0} Members | ${sphere.post_count || 0} Posts</span>
+            </div>
+            <div class="subforum-lastpost subforum-column">
+                ${sphere.last_post_date ? 
+                    `<b><a href="#">Last post</a></b> by <a href="#">${sphere.last_poster_name || 'Unknown'}</a><br>
+                    on <small>${new Date(sphere.last_post_date).toLocaleDateString()}</small>` : 
+                    'No posts yet'
+                }
+            </div>
+        `;
+        container.appendChild(row);
+    });
+}
+
+function displayPostResults(results) {
+    const tbody = document.querySelector('.post-search-results tbody');
+    tbody.innerHTML = '';
+    
+    if (results.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="3" class="no-results">No posts found matching your search.</td>';
+        tbody.appendChild(row);
+        return;
+    }
+    
+    results.forEach(post => {
+        const row = document.createElement('tr');
+        row.className = 'table-row';
+        row.innerHTML = `
+            <td class="subject"><a href="post-view.html?id=${post.id}">${post.title}</a><br>
+            <span>Started by <b><a href="account.html?id=${post.author_id || '#'}">${post.author_name || 'Unknown'}</a></b></span></td>
+            <td class="replies">${post.replies || 0} replies | ${post.likes || 0} likes<br>${post.views || 0} views</td>
+            <td class="last-reply">Last reply on <small>${post.last_reply_date ? new Date(post.last_reply_date).toLocaleDateString() : 'N/A'}</small></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function displayDescriptionResults(results) {
+    const container = document.querySelector('.description-search-results');
+    container.innerHTML = '';
+    
+    if (results.length === 0) {
+        container.innerHTML = '<p class="no-results">No descriptions found matching your search.</p>';
+        return;
+    }
+    
+    results.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'subforum-row subforum-column';
+        row.innerHTML = `
+            <div class="subforum-icon subforum-column center">
+                <img class="icon" src="../images/Globe.png" alt="Globe Icon">
+            </div>
+            <div class="subforum-title subforum-column">
+                <h1><a href="forum-template.html?id=${item.id}">${item.title}</a></h1>
+                <p>${item.content || 'No description available'}</p>
+            </div>
+            <div class="subforum-stats subforum-column center">
+                <span>${item.member_count || 0} Members | ${item.post_count || 0} Posts</span>
+            </div>
+            <div class="subforum-lastpost subforum-column">
+                <b>Created on</b><br><small>${new Date(item.created_at).toLocaleDateString()}</small>
+            </div>
+        `;
+        container.appendChild(row);
+    });
+}
+
+function displayUserResults(results) {
+    const container = document.querySelector('.user-search-results');
+    container.innerHTML = '';
+    
+    if (results.length === 0) {
+        container.innerHTML = '<p class="no-results">No users found matching your search.</p>';
+        return;
+    }
+    
+    results.forEach(user => {
+        const row = document.createElement('div');
+        row.className = 'subforum-row subforum-column';
+        row.innerHTML = `
+            <div class="subforum-icon subforum-column center">
+                <img class="icon" src="#" alt="User Profile Picture">
+            </div>
+            <div class="subforum-title subforum-column">
+                <h1><a href="account.html?id=${user.id}">${user.title}</a></h1>
+                <p>${user.content || 'No bio available'}</p>
+            </div>
+            <div class="subforum-lastpost subforum-column">
+                <b>Joined on</b><br><small>${new Date(user.created_at).toLocaleDateString()}</small>
+            </div>
+        `;
+        container.appendChild(row);
+    });
+}
+</script>
 </body>
 </html>

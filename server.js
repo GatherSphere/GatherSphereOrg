@@ -37,6 +37,7 @@ const db = new sqlite3.Database('./database.db', (err) => {
         console.error('Could not Could notct totabase', er);
     } else {
         console.log('Connected to SQLite database');
+        
     }
 });
 
@@ -591,6 +592,132 @@ app.get('/api/search', (req, res) => {
         }
         res.json(results);
     });
+});
+
+// Protected route - Like a post
+app.post('/api/posts/:id/like', authenticateToken, (req, res) => {
+    const postId = req.params.id;
+    const userId = req.user.id;
+    const now = new Date().toISOString();
+    
+    // Check if post exists
+    db.get("SELECT * FROM posts WHERE id = ?", [postId], (err, post) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+        
+        // Check if user already liked this post
+        db.get(
+            "SELECT * FROM post_likes WHERE post_id = ? AND user_id = ?", 
+            [postId, userId],
+            (err, like) => {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+                
+                if (like) {
+                    // User already liked this post - unlike it
+                    db.run(
+                        "DELETE FROM post_likes WHERE post_id = ? AND user_id = ?",
+                        [postId, userId],
+                        (err) => {
+                            if (err) {
+                                return res.status(500).json({ error: err.message });
+                            }
+                            
+                            // Decrement post likes count
+                            db.run(
+                                "UPDATE posts SET likes = likes - 1 WHERE id = ?",
+                                [postId],
+                                function(err) {
+                                    if (err) {
+                                        return res.status(500).json({ error: err.message });
+                                    }
+                                    
+                                    // Return the updated likes count
+                                    db.get(
+                                        "SELECT likes FROM posts WHERE id = ?",
+                                        [postId],
+                                        (err, result) => {
+                                            if (err) {
+                                                return res.status(500).json({ error: err.message });
+                                            }
+                                            
+                                            res.json({ 
+                                                likes: result.likes,
+                                                liked: false 
+                                            });
+                                        }
+                                    );
+                                }
+                            );
+                        }
+                    );
+                } else {
+                    // User hasn't liked this post yet - add the like
+                    db.run(
+                        "INSERT INTO post_likes (post_id, user_id, created_at) VALUES (?, ?, ?)",
+                        [postId, userId, now],
+                        (err) => {
+                            if (err) {
+                                return res.status(500).json({ error: err.message });
+                            }
+                            
+                            // Increment post likes count
+                            db.run(
+                                "UPDATE posts SET likes = likes + 1 WHERE id = ?",
+                                [postId],
+                                function(err) {
+                                    if (err) {
+                                        return res.status(500).json({ error: err.message });
+                                    }
+                                    
+                                    // Return the updated likes count
+                                    db.get(
+                                        "SELECT likes FROM posts WHERE id = ?",
+                                        [postId],
+                                        (err, result) => {
+                                            if (err) {
+                                                return res.status(500).json({ error: err.message });
+                                            }
+                                            
+                                            res.json({ 
+                                                likes: result.likes,
+                                                liked: true 
+                                            });
+                                        }
+                                    );
+                                }
+                            );
+                        }
+                    );
+                }
+            }
+        );
+    });
+});
+
+// Get members of a specific sphere
+app.get('/api/spheres/:id/members', authenticateToken, (req, res) => {
+    const sphereId = req.params.id;
+    
+    db.all(
+        `SELECT sphere_members.*, users.username 
+         FROM sphere_members 
+         JOIN users ON sphere_members.user_id = users.id 
+         WHERE sphere_id = ?`,
+        [sphereId],
+        (err, members) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json(members);
+        }
+    );
 });
 
 // Start server

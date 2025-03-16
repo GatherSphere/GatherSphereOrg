@@ -23,49 +23,49 @@
         </div>
         <!--Search Box-->
         <div class="search-box">
-            <select name="" id="">
+            <select name="" id="searchFilter">
                 <option value= "everything">Everything</option>
                 <option value= "forum">Forums</option>
                 <option value= "post">Post Titles</option>
                 <option value= "description">Descriptions</option>
                 <option value= "user">Users</option>
             </select>
-            <input type="text" name="q" id="" placeholder="Search the Sphere!">
-            <button class="search">Search</button>
+            <input type="text" name="q" id="searchQuery" placeholder="Search the Sphere!">
+            <button class="search" id="searchButton">Search</button>
         </div>
     </header>
 <!--Forum Header/Title-->
 <div class="forum-title">
-    <h2>Welcome to Sphere Title!</h2>
+    <h2 id="forumTitle">Loading sphere...</h2>
 </div>
 
 <!--Forum Settings Button for Admin Users-->
 <div class="forum-settings">
-    <button class="forum-settings-button">Edit Forum Settings</button>
+    <button class="forum-settings-button" id="forumSettingsButton" style="display: none;">Edit Forum Settings</button>
 </div>
 
 <!--Forum Settings For Admin Users-->
-<div class="Forum Settings">
+<div class="Forum Settings" id="forumSettingsSection" style="display: none;">
     <table class="forum-settings-table">
         <tr>
             <th>Sphere Title:</th>
-            <td>Title_of_Sphere</td>
-            <td><button class="edit-button">[Edit]</button></td>
+            <td id="sphereTitleSetting">Title_of_Sphere</td>
+            <td><button class="edit-button" id="editTitleButton">[Edit]</button></td>
         </tr>
         <tr>
             <th>Sphere Description:</th>
-            <td>What is this Sphere for? Who is it for? Any particular topics/important info?</td>
-            <td><button class="edit-button">[Edit]</button></td>
+            <td id="sphereDescriptionSetting">What is this Sphere for? Who is it for? Any particular topics/important info?</td>
+            <td><button class="edit-button" id="editDescriptionButton">[Edit]</button></td>
         </tr>
         <tr>
             <th>Member List</th>
-            <td></td>
-            <td><button class="edit-button">[Edit]</button></td>
+            <td id="membersList"></td>
+            <td><button class="edit-button" id="editMembersButton">[Edit]</button></td>
         </tr>
         <tr>
             <th>Admin List</th>
-            <td></td>
-            <td><button class="edit-button">[Edit]</button></td>
+            <td id="adminsList"></td>
+            <td><button class="edit-button" id="editAdminsButton">[Edit]</button></td>
         </tr>
     </table>
 </div>
@@ -82,6 +82,8 @@
         <input type="text" name="post-title" id="userPostTitle" placeholder="Title your post" required>
         <label for="post-content" class="content-label">Post Content:</label>
         <textarea name="post-content" id="post-content" cols="30" rows="10" placeholder="Write something here!" required></textarea>
+        <label for="post-tags" class="content-label">Tags:</label>
+        <input type="text" name="post-tags" id="userPostTags" placeholder="Add tags separated by commas (e.g., question, help, discussion)">
         <button type="submit" class="submit-post">Submit Post</button>
     </form>
 </div>
@@ -109,11 +111,99 @@
 <script>
 // Check auth status
 const authToken = localStorage.getItem('authToken');
+const userId = localStorage.getItem('userId');
+let currentSphereId = null;
+let isAdmin = false;
+
+// Get sphere ID from URL parameters
+function getSphereId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('id');
+}
+
+// Load sphere data
+async function loadSphereData() {
+    try {
+        const sphereId = getSphereId();
+        if (!sphereId) {
+            document.getElementById('forumTitle').textContent = 'Sphere not found';
+            return;
+        }
+        
+        currentSphereId = sphereId;
+        
+        // Fetch sphere data
+        const response = await fetch(`/api/spheres/${sphereId}`);
+        if (!response.ok) {
+            throw new Error('Failed to load sphere');
+        }
+        
+        const sphere = await response.json();
+        
+        // Update page title and document title
+        document.getElementById('forumTitle').textContent = `Welcome to ${sphere.name}!`;
+        document.title = `GatherSphere - ${sphere.name}`;
+        
+        // Update settings section
+        document.getElementById('sphereTitleSetting').textContent = sphere.name;
+        document.getElementById('sphereDescriptionSetting').textContent = sphere.description || 'No description available';
+        
+        // Check if user is admin
+        if (authToken) {
+            try {
+                const adminResponse = await fetch(`/api/spheres/${sphereId}/members`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                if (adminResponse.ok) {
+                    const members = await adminResponse.json();
+                    const currentUser = members.find(member => member.user_id == userId);
+                    isAdmin = currentUser && currentUser.role === 'admin';
+                    
+                    // Show settings button if admin
+                    document.getElementById('forumSettingsButton').style.display = isAdmin ? 'block' : 'none';
+                    
+                    // Load member lists if admin
+                    if (isAdmin) {
+                        let adminsList = '';
+                        let membersList = '';
+                        
+                        members.forEach(member => {
+                            if (member.role === 'admin') {
+                                adminsList += `<div>${member.username}</div>`;
+                            } else {
+                                membersList += `<div>${member.username}</div>`;
+                            }
+                        });
+                        
+                        document.getElementById('adminsList').innerHTML = adminsList || 'No admins';
+                        document.getElementById('membersList').innerHTML = membersList || 'No members';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+            }
+        }
+        
+        // Load posts for this sphere
+        loadPosts(sphereId);
+    } catch (error) {
+        console.error('Error loading sphere data:', error);
+        document.getElementById('forumTitle').textContent = 'Error loading sphere';
+    }
+}
 
 // Show/hide post creation form
 document.querySelector('.create-post-button').addEventListener('click', function() {
     const createPost = document.getElementById('createPost');
     createPost.style.display = createPost.style.display === 'none' ? 'flex' : 'none';
+});
+
+// Show/hide forum settings
+document.getElementById('forumSettingsButton').addEventListener('click', function() {
+    const settingsSection = document.getElementById('forumSettingsSection');
+    settingsSection.style.display = settingsSection.style.display === 'none' ? 'block' : 'none';
 });
 
 // Handle post creation with authentication
@@ -126,9 +216,15 @@ document.getElementById('postForm').addEventListener('submit', async function(ev
         return;
     }
 
-    const subject = document.getElementById('userPostTitle').value;
+    const title = document.getElementById('userPostTitle').value;
     const content = document.getElementById('post-content').value;
     const tags = document.getElementById('userPostTags').value;
+    const sphereId = currentSphereId;
+    
+    if (!sphereId) {
+        alert('Error: Sphere ID not found');
+        return;
+    }
     
     try {
         const response = await fetch('/api/posts', {
@@ -137,7 +233,12 @@ document.getElementById('postForm').addEventListener('submit', async function(ev
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`
             },
-            body: JSON.stringify({ subject, content, tags }),
+            body: JSON.stringify({ 
+                subject: title, // Changed from 'title' to 'subject' to match server expectation
+                content, 
+                tags,
+                sphere_id: sphereId
+            }),
         });
 
         if (response.status === 401 || response.status === 403) {
@@ -153,7 +254,7 @@ document.getElementById('postForm').addEventListener('submit', async function(ev
             alert('Post created successfully!');
             document.getElementById('postForm').reset();
             document.getElementById('createPost').style.display = 'none';
-            loadPosts(); // Refresh the posts list
+            loadPosts(sphereId); // Refresh the posts list
         } else {
             alert(result.error);
         }
@@ -163,41 +264,119 @@ document.getElementById('postForm').addEventListener('submit', async function(ev
     }
 });
 
-// Load posts with auth check for actions
-function loadPosts() {
-    fetch('/api/posts')
+// Load posts for specific sphere
+function loadPosts(sphereId) {
+    fetch(`/api/spheres/${sphereId}/posts`)
         .then(response => response.json())
         .then(posts => {
             const tbody = document.getElementById('postsTableBody');
             tbody.innerHTML = '';
+            
+            if (posts.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="3" style="text-align: center;">No posts yet. Be the first to create a post!</td>';
+                tbody.appendChild(row);
+                return;
+            }
+            
             posts.forEach(post => {
                 const row = document.createElement('tr');
                 row.className = 'table-row';
                 row.innerHTML = `
                     <td class="subject">
                         <a href="post-view.html?id=${post.id}">${post.subject}</a><br>
-                        <span>Started by <b><a href="#">${post.author_name || 'UserName'}</a></b></span>
+                        <span>Started by <b><a href="account.html?id=${post.author_id}">${post.author_name || 'Unknown'}</a></b></span>
                     </td>
-                    <td class="replies">${post.replies} replies<br>${post.views} views</td>
+                    <td class="replies">
+                        ${post.replies || 0} replies<br>
+                        ${post.views || 0} views | <span id="likes-${post.id}">${post.likes || 0}</span> likes
+                        <br><button class="like-button" data-post-id="${post.id}">Like</button>
+                    </td>
                     <td class="last-reply">
-                        Last reply by <b><a href="#">${post.author_name || 'UserName'}</a></b><br>
-                        on <small>${new Date(post.created_at).toLocaleDateString()}</small>
+                        Last reply by <b><a href="account.html?id=${post.last_reply_author_id || post.author_id}">${post.last_reply_author || post.author_name || 'Unknown'}</a></b><br>
+                        on <small>${new Date(post.last_reply_date || post.created_at).toLocaleDateString()}</small>
                     </td>
                 `;
                 tbody.appendChild(row);
+            });
+            
+            // Add event listeners to like buttons
+            document.querySelectorAll('.like-button').forEach(button => {
+                button.addEventListener('click', handleLike);
             });
         })
         .catch(error => console.error('Error loading posts:', error));
 }
 
-// Show/hide create post button based on auth status
-document.addEventListener('DOMContentLoaded', () => {
-    const createPostButton = document.querySelector('.create-post-button');
-    if (createPostButton) {
-        createPostButton.style.display = authToken ? 'block' : 'none';
+// Handle post likes
+function handleLike(event) {
+    if (!authToken) {
+        alert('Please log in to like posts');
+        return;
     }
+    
+    const postId = event.target.dataset.postId;
+    
+    fetch(`/api/posts/${postId}/like`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${authToken}`
+        }
+    })
+    .then(response => {
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data && data.likes !== undefined) {
+            document.getElementById(`likes-${postId}`).textContent = data.likes;
+        }
+    })
+    .catch(error => console.error('Error liking post:', error));
+}
+
+// Handle search functionality
+document.getElementById('searchButton').addEventListener('click', function() {
+    const query = document.getElementById('searchQuery').value.trim();
+    const filter = document.getElementById('searchFilter').value;
+    
+    if (query) {
+        window.location.href = `search-results.html?q=${encodeURIComponent(query)}&filter=${encodeURIComponent(filter)}`;
+    }
+});
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', () => {
+    // Update navigation based on login status
+    const accountNavItem = document.querySelector('.nav-item:nth-child(2)');
+    const loginNavItem = document.querySelector('.nav-item:nth-child(3)');
+    const logoutItem = document.querySelector('#logoutItem');
+    
+    if (authToken) {
+        accountNavItem.classList.remove('hide');
+        loginNavItem.classList.add('hide');
+        if (logoutItem) {
+            logoutItem.classList.remove('hide');
+        }
+    } else {
+        accountNavItem.classList.add('hide');
+        loginNavItem.classList.remove('hide');
+        if (logoutItem) {
+            logoutItem.classList.add('hide');
+        }
+    }
+    
+    // Load sphere data
+    loadSphereData();
+    
+    // Initial form state
     document.getElementById('createPost').style.display = 'none';
-    loadPosts();
 });
 </script>
 </body>

@@ -34,7 +34,8 @@
             </div>
             <div class="post-body" id="postContent"></div>
             <div class="post-stats">
-                <span id="postViews"></span> views | <span id="postReplies"></span> replies
+                <span id="postViews"></span> views | <span id="postReplies"></span> replies | <span id="postLikes">0</span> likes
+                <button id="likeButton">Like</button>
             </div>
         </div>
 
@@ -83,6 +84,39 @@
             });
         }
 
+        // Handle like button
+        document.getElementById('likeButton').addEventListener('click', async function() {
+            if (!authToken) {
+                alert('Please log in to like posts');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/posts/${postId}/like`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('username');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById('postLikes').textContent = result.likes;
+                }
+            } catch (error) {
+                console.error('Error liking post:', error);
+            }
+        });
+
         // Load post content
         async function loadPost() {
             try {
@@ -95,6 +129,7 @@
                 document.getElementById('postDate').textContent = formatDate(post.created_at);
                 document.getElementById('postViews').textContent = post.views;
                 document.getElementById('postReplies').textContent = post.replies;
+                document.getElementById('postLikes').textContent = post.likes || 0;
                 
                 document.title = `GatherSphere - ${post.subject}`;
             } catch (error) {

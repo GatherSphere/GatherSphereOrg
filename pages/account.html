@@ -229,8 +229,95 @@ async function loadUserData() {
         document.getElementById('locationPreference').checked = user.location_public;
         document.getElementById('birthdayPreference').checked = user.birthday_public;
         document.getElementById('spherePreference').checked = user.spheres_public;
+        
+        // Load user's spheres and posts
+        loadUserSpheres();
+        loadUserPosts();
     } catch (error) {
         console.error('Error loading user data:', error);
+    }
+}
+
+// Load user's spheres
+async function loadUserSpheres() {
+    try {
+        const response = await fetch(`/api/user/${userId}/spheres`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.status === 401 || response.status === 403) {
+            return; // Auth handling already done in loadUserData
+        }
+        
+        const spheres = await response.json();
+        const sphereTableBody = document.querySelector('.sphere-table tbody');
+        sphereTableBody.innerHTML = ''; // Clear existing content
+        
+        if (spheres.length === 0) {
+            const row = document.createElement('tr');
+            row.className = 'table-row';
+            row.innerHTML = '<td colspan="3" style="text-align: center;">You haven\'t joined any spheres yet</td>';
+            sphereTableBody.appendChild(row);
+            return;
+        }
+        
+        spheres.forEach(sphere => {
+            const row = document.createElement('tr');
+            row.className = 'table-row';
+            row.innerHTML = `
+                <td class="sphere"><a href="forum-template.html?id=${sphere.id}">${sphere.name}</a><br>
+                <span>Started by <b><a href="#">${sphere.creator_name || 'Unknown'}</a></b></span></td>
+                <td class="sphere-stats">${sphere.member_count || 0} members | ${sphere.post_count || 0} posts</td>
+                <td class="last-post">Last post on <small>${sphere.last_post_date ? new Date(sphere.last_post_date).toLocaleDateString() : 'N/A'}</small></td>
+            `;
+            sphereTableBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error loading spheres:', error);
+    }
+}
+
+// Load user's posts
+async function loadUserPosts() {
+    try {
+        // This endpoint doesn't exist yet, but would be similar to other API calls
+        const response = await fetch(`/api/user/${userId}/posts`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.status === 401 || response.status === 403) {
+            return; // Auth handling already done in loadUserData
+        }
+        
+        const posts = await response.json();
+        const postsTableBody = document.querySelector('.posts-table tbody');
+        postsTableBody.innerHTML = ''; // Clear existing content
+        
+        if (posts.length === 0) {
+            const row = document.createElement('tr');
+            row.className = 'table-row';
+            row.innerHTML = '<td colspan="3" style="text-align: center;">You haven\'t created any posts yet</td>';
+            postsTableBody.appendChild(row);
+            return;
+        }
+        
+        posts.forEach(post => {
+            const row = document.createElement('tr');
+            row.className = 'table-row';
+            row.innerHTML = `
+                <td class="subject"><a href="post-view.html?id=${post.id}">${post.subject}</a><br>
+                <span>Started by <b><a href="#">${post.author_name || 'You'}</a></b></span></td>
+                <td class="replies">${post.replies || 0} replies | ${post.likes || 0} likes<br>${post.views || 0} views</td>
+                <td class="last-reply">Last reply on <small>${post.last_reply_date ? new Date(post.last_reply_date).toLocaleDateString() : 'N/A'}</small></td>
+            `;
+            postsTableBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error loading posts:', error);
     }
 }
 
@@ -332,6 +419,59 @@ document.querySelector('.save-preference').addEventListener('click', function() 
         console.error('Error:', error);
         alert('Failed to update preferences');
     });
+});
+
+// Toggle sphere creation form
+document.querySelector('.create-sphere').addEventListener('click', function() {
+    const createSphereForm = document.getElementById('createPost');
+    createSphereForm.style.display = createSphereForm.style.display === 'none' ? 'block' : 'none';
+});
+
+// Handle sphere creation form submission
+document.getElementById('sphereForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    
+    if (!authToken) {
+        alert('Please log in to create a sphere');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    const name = document.getElementById('sphereTitle').value;
+    const description = document.getElementById('sphereContent').value;
+    const tags = document.getElementById('sphereTags').value;
+    
+    try {
+        const response = await fetch('/api/spheres', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ name, description, tags })
+        });
+        
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        const result = await response.json();
+        if (response.ok) {
+            alert('Sphere created successfully!');
+            document.getElementById('sphereForm').reset();
+            document.getElementById('createPost').style.display = 'none';
+            loadUserSpheres(); // Refresh the spheres list
+        } else {
+            alert(result.error || 'Failed to create sphere');
+        }
+    } catch (error) {
+        console.error('Error creating sphere:', error);
+        alert('An error occurred while creating the sphere');
+    }
 });
 
 // Initial load

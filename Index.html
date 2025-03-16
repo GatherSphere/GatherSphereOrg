@@ -34,6 +34,7 @@
             <input type="text" name="q" id="" placeholder="Search the Sphere!">
             <button class="search">Search</button>
             <a href="./pages/forum-template.html"><button class="search">View Forums</button></a>
+            <button class="create-post-button" onclick="window.location.href='./pages/forum-template.html#createPost'">Create Post</button>
         </div>
     </header>
 
@@ -46,139 +47,6 @@
             <!-- removed placeholder subforum-row -->
         </div>
     </div>
-<!--More Forums-->
-<div class="container">
-    <div class="subforum">
-        <div class="title-row">
-            <h1>Other Spheres</h1>
-        </div>
-        <div class= "subforum-row subforum-column">
-            <div class= "subforum-icon subforum-column center">
-                <img class="icon" src="./images/Globe.png" alt="Globe Icon">
-            </div>
-            <div class="subforum-title subforum-column">
-                <h1><a href="">Subforum Title</a></h1>
-                <p>Description content: Lorem Ipsum Domine Etcetera</p>
-            </div>
-            <div class="subforum-stats subforum-column center">
-                <span> X Posts | Y Topics </span>
-            </div>
-            <div class="subforum-lastpost subforum-column">
-                <b><a href="">Last post</a></b> by <a href="">UserName</a>
-                <br>
-                on <small>DD Mon YYYY</small>
-            </div>
-        </div>
-        <!--Adding more "Rows" of subforums-->
-        <div class= "subforum-row subforum-column">
-            <div class= "subforum-icon subforum-column center">
-                <img class="icon" src="./images/Globe.png" alt="Globe Icon">
-            </div>
-            <div class="subforum-title subforum-column">
-                <h1><a href="">Subforum Title</a></h1>
-                <p>Description content: Lorem Ipsum Domine Etcetera</p>
-            </div>
-            <div class="subforum-stats subforum-column center">
-                <span> X Posts | Y Topics </span>
-            </div>
-            <div class="subforum-lastpost subforum-column">
-                <b><a href="">Last post</a></b> by <a href="">UserName</a>
-                <br>
-                on <small>DD Mon YYYY</small>
-            </div>
-        </div>
-
-        <div class= "subforum-row subforum-column">
-            <div class= "subforum-icon subforum-column center">
-                <img class="icon" src="./images/Globe.png" alt="Globe Icon">
-            </div>
-            <div class="subforum-title subforum-column">
-                <h1><a href="">Subforum Title</a></h1>
-                <p>Description content: Lorem Ipsum Domine Etcetera</p>
-            </div>
-            <div class="subforum-stats subforum-column center">
-                <span> X Posts | Y Topics </span>
-            </div>
-            <div class="subforum-lastpost subforum-column">
-                <b><a href="">Last post</a></b> by <a href="">UserName</a>
-                <br>
-                on <small>DD Mon YYYY</small>
-            </div>
-        </div>
-
-        <div class= "subforum-row subforum-column">
-            <div class= "subforum-icon subforum-column center">
-                <img class="icon" src="./images/Globe.png" alt="Globe Icon">
-            </div>
-            <div class="subforum-title subforum-column">
-                <h1><a href="">Subforum Title</a></h1>
-                <p>Description content: Lorem Ipsum Domine Etcetera</p>
-            </div>
-            <div class="subforum-stats subforum-column center">
-                <span> X Posts | Y Topics </span>
-            </div>
-            <div class="subforum-lastpost subforum-column">
-                <b><a href="">Last post</a></b> by <a href="">UserName</a>
-                <br>
-                on <small>DD Mon YYYY</small>
-            </div>
-        </div>
-
-        <div class= "subforum-row subforum-column">
-            <div class= "subforum-icon subforum-column center">
-                <img class="icon" src="./images/Globe.png" alt="Globe Icon">
-            </div>
-            <div class="subforum-title subforum-column">
-                <h1><a href="">Subforum Title</a></h1>
-                <p>Description content: Lorem Ipsum Domine Etcetera</p>
-            </div>
-            <div class="subforum-stats subforum-column center">
-                <span> X Posts | Y Topics </span>
-            </div>
-            <div class="subforum-lastpost subforum-column">
-                <b><a href="">Last post</a></b> by <a href="">UserName</a>
-                <br>
-                on <small>DD Mon YYYY</small>
-            </div>
-        </div>
-
-        <div class= "subforum-row subforum-column">
-            <div class= "subforum-icon subforum-column center">
-                <img class="icon" src="./images/Globe.png" alt="Globe Icon">
-            </div>
-            <div class="subforum-title subforum-column">
-                <h1><a href="">Subforum Title</a></h1>
-                <p>Description content: Lorem Ipsum Domine Etcetera</p>
-            </div>
-            <div class="subforum-stats subforum-column center">
-                <span> X Posts | Y Topics </span>
-            </div>
-            <div class="subforum-lastpost subforum-column">
-                <b><a href="">Last post</a></b> by <a href="">UserName</a>
-                <br>
-                on <small>DD Mon YYYY</small>
-            </div>
-        </div>
-
-        <div class= "subforum-row subforum-column">
-            <div class= "subforum-icon subforum-column center">
-                <img class="icon" src="./images/Globe.png" alt="Globe Icon">
-            </div>
-            <div class="subforum-title subforum-column">
-                <h1><a href="">Subforum Title</a></h1>
-                <p>Description content: Lorem Ipsum Domine Etcetera</p>
-            </div>
-            <div class="subforum-stats subforum-column center">
-                <span> X Posts | Y Topics </span>
-            </div>
-            <div class="subforum-lastpost subforum-column">
-                <b><a href="">Last post</a></b> by <a href="">UserName</a>
-                <br>
-                on <small>DD Mon YYYY</small>
-            </div>
-        </div>
-    </div>
-</div>
 
 <footer>
     <span>&copy; &nbsp; GatherSphere | All Rights Reserved</span>
@@ -198,15 +66,15 @@ window.addEventListener('DOMContentLoaded', () => {
             <img class="icon" src="./images/Globe.png" alt="Icon">
           </div>
           <div class="subforum-title subforum-column">
-            <h1><a href="#">${post.subject}</a></h1>
-            <p>Some dynamic description</p>
+            <h1><a href="./pages/post-view.html?id=${post.id}">${post.subject}</a></h1>
+            <p>${post.content}</p>
           </div>
           <div class="subforum-stats subforum-column center">
             <span>${post.replies} Replies | ${post.views} Views</span>
           </div>
           <div class="subforum-lastpost subforum-column">
-            <b><a href="#">Last post</a></b> by <a href="#">UserName</a><br>
-            on <small>DD Mon YYYY</small>
+            <b><a href="./pages/post-view.html?id=${post.id}">Last post</a></b> by <a href="#">${post.author_name || 'UserName'}</a><br>
+            on <small>${new Date(post.created_at).toLocaleDateString()}</small>
           </div>`;
         container.appendChild(row);
       });

@@ -1,0 +1,185 @@
+<!doctype html>
+<head>
+    <title>GatherSphere - View Post</title>
+    <link rel="icon" href="../images/Globe.png" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="../css/darkmode.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <nav class="navigation hide" id="navigation">
+                <ul class="nav-list">
+                    <span class="close-nav" onclick="hideNavBar()"><img src="../images/nav-close.png" alt=" "></span>
+                    <li class="nav-item"><a href="../Index.html">Home</a></li>
+                    <li class="nav-item hide"><a href="account.html">Account</a></li>
+                    <li class="nav-item hide"><a href="login.html">Login/Sign Up</a></li>
+                    <li class="nav-item hide" id="logoutItem"><a href="#" id="logoutButton">Logout</a></li>
+                </ul>
+            </nav>
+            <a href="#" class="nav-icon" id="navBar" onclick="openNavBar()"><img src="../images/nav-open.png" alt="Navigation"></a>
+            <div class="title">GatherSphere <img class="title-icon" src="../images/Globe.png" alt=" "></div>
+        </div>
+    </header>
+
+    <div class="post-container">
+        <!-- Main post content -->
+        <div class="post-content" id="mainPost">
+            <div class="post-header">
+                <h1 id="postTitle"></h1>
+                <div class="post-meta">
+                    Posted by <span id="postAuthor"></span> on <span id="postDate"></span>
+                </div>
+            </div>
+            <div class="post-body" id="postContent"></div>
+            <div class="post-stats">
+                <span id="postViews"></span> views | <span id="postReplies"></span> replies
+            </div>
+        </div>
+
+        <!-- Replies section -->
+        <div class="replies-section">
+            <h2>Replies</h2>
+            <div id="repliesList"></div>
+        </div>
+
+        <!-- Reply form (only shown when logged in) -->
+        <div class="reply-form" id="replyForm" style="display: none;">
+            <h3>Add a Reply</h3>
+            <form id="newReplyForm">
+                <textarea id="replyContent" rows="4" placeholder="Write your reply here..." required></textarea>
+                <button type="submit">Submit Reply</button>
+            </form>
+        </div>
+
+        <!-- Login prompt (shown when not logged in) -->
+        <div class="login-prompt" id="loginPrompt" style="display: none;">
+            <p>Please <a href="login.html">log in</a> to reply to this post.</p>
+        </div>
+    </div>
+
+    <footer>
+        <span>&copy; &nbsp; GatherSphere | All Rights Reserved</span>
+    </footer>
+
+    <script src="../JavaScript/nav.js"></script>
+    <script>
+        // Get auth token and post ID
+        const authToken = localStorage.getItem('authToken');
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+
+        // Show/hide reply form based on auth status
+        document.getElementById('replyForm').style.display = authToken ? 'block' : 'none';
+        document.getElementById('loginPrompt').style.display = authToken ? 'none' : 'block';
+
+        // Function to format date
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // Load post content
+        async function loadPost() {
+            try {
+                const response = await fetch(`/api/posts/${postId}`);
+                const post = await response.json();
+                
+                document.getElementById('postTitle').textContent = post.subject;
+                document.getElementById('postContent').textContent = post.content;
+                document.getElementById('postAuthor').textContent = post.author_name;
+                document.getElementById('postDate').textContent = formatDate(post.created_at);
+                document.getElementById('postViews').textContent = post.views;
+                document.getElementById('postReplies').textContent = post.replies;
+                
+                document.title = `GatherSphere - ${post.subject}`;
+            } catch (error) {
+                console.error('Error loading post:', error);
+            }
+        }
+
+        // Load replies
+        async function loadReplies() {
+            try {
+                const response = await fetch(`/api/posts/${postId}/replies`);
+                const replies = await response.json();
+                const repliesList = document.getElementById('repliesList');
+                repliesList.innerHTML = '';
+
+                replies.forEach(reply => {
+                    const replyElement = document.createElement('div');
+                    replyElement.className = 'reply';
+                    replyElement.innerHTML = `
+                        <div class="reply-meta">
+                            <strong>${reply.author_name}</strong> replied on ${formatDate(reply.created_at)}
+                        </div>
+                        <div class="reply-content">
+                            ${reply.content}
+                        </div>
+                    `;
+                    repliesList.appendChild(replyElement);
+                });
+            } catch (error) {
+                console.error('Error loading replies:', error);
+            }
+        }
+
+        // Handle new reply submission
+        document.getElementById('newReplyForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            if (!authToken) {
+                alert('Please log in to reply');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const content = document.getElementById('replyContent').value;
+
+            try {
+                const response = await fetch(`/api/posts/${postId}/replies`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('username');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('replyContent').value = '';
+                    loadReplies(); // Reload replies after successful submission
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                console.error('Error posting reply:', error);
+                alert('An error occurred while posting your reply.');
+            }
+        });
+
+        // Initial load
+        if (postId) {
+            loadPost();
+            loadReplies();
+        } else {
+            alert('No post ID specified');
+            window.location.href = '../Index.html';
+        }
+    </script>
+</body>
+</html>

@@ -100,21 +100,35 @@ app.get('/api/posts/:id', (req, res) => {
 
 // Protected route - Create post
 app.post('/api/posts', authenticateToken, (req, res) => {
-    const { subject, content, tags } = req.body;
+    const { subject, content, tags, sphere_id } = req.body;
     const author_id = req.user.id;
     const created_at = new Date().toISOString();
 
-    db.run(
-        "INSERT INTO posts (subject, content, author_id, created_at, views, replies, tags) VALUES (?, ?, ?, ?, 0, 0, ?)",
-        [subject, content, author_id, created_at, tags],
-        function(err) {
+    // Check if user is a member of the sphere
+    db.get(
+        "SELECT * FROM sphere_members WHERE sphere_id = ? AND user_id = ?",
+        [sphere_id, author_id],
+        (err, member) => {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
-            res.json({ 
-                message: "Post created successfully", 
-                postId: this.lastID 
-            });
+            if (!member) {
+                return res.status(403).json({ error: "You must be a member of the sphere to post" });
+            }
+            
+            db.run(
+                "INSERT INTO posts (subject, content, author_id, created_at, views, replies, tags, sphere_id) VALUES (?, ?, ?, ?, 0, 0, ?, ?)",
+                [subject, content, author_id, created_at, tags, sphere_id],
+                function(err) {
+                    if (err) {
+                        return res.status(500).json({ error: err.message });
+                    }
+                    res.json({ 
+                        message: "Post created successfully", 
+                        postId: this.lastID 
+                    });
+                }
+            );
         }
     );
 });
@@ -299,6 +313,284 @@ app.put('/api/user/:id', authenticateToken, (req, res) => {
             res.json({ message: "Profile updated successfully" });
         }
     );
+});
+
+// Get all spheres
+app.get('/api/spheres', (req, res) => {
+    db.all(
+        `SELECT spheres.*, users.username as creator_name,
+         COUNT(DISTINCT sphere_members.user_id) as member_count,
+         COUNT(DISTINCT posts.id) as post_count,
+         MAX(posts.created_at) as last_post_date
+         FROM spheres
+         LEFT JOIN users ON spheres.creator_id = users.id
+         LEFT JOIN sphere_members ON spheres.id = sphere_members.sphere_id
+         LEFT JOIN posts ON spheres.id = posts.sphere_id
+         GROUP BY spheres.id
+         ORDER BY spheres.created_at DESC`,
+        (err, spheres) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json(spheres);
+        }
+    );
+});
+
+// Get specific sphere by ID
+app.get('/api/spheres/:id', (req, res) => {
+    const sphereId = req.params.id;
+    db.get(
+        `SELECT spheres.*, users.username as creator_name,
+         COUNT(DISTINCT sphere_members.user_id) as member_count
+         FROM spheres
+         LEFT JOIN users ON spheres.creator_id = users.id
+         LEFT JOIN sphere_members ON spheres.id = sphere_members.sphere_id
+         WHERE spheres.id = ?
+         GROUP BY spheres.id`,
+        [sphereId],
+        (err, sphere) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            if (!sphere) {
+                res.status(404).json({ error: "Sphere not found" });
+                return;
+            }
+            res.json(sphere);
+        }
+    );
+});
+
+// Protected route - Create sphere
+app.post('/api/spheres', authenticateToken, (req, res) => {
+    const { name, description, tags } = req.body;
+    const creator_id = req.user.id;
+    const created_at = new Date().toISOString();
+
+    db.run(
+        "INSERT INTO spheres (name, description, created_at, creator_id, tags) VALUES (?, ?, ?, ?, ?)",
+        [name, description, created_at, creator_id, tags],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            
+            // Add creator as a member with admin role
+            db.run(
+                "INSERT INTO sphere_members (sphere_id, user_id, role, joined_at) VALUES (?, ?, ?, ?)",
+                [this.lastID, creator_id, 'admin', created_at],
+                (err) => {
+                    if (err) {
+                        console.error('Error adding creator as member:', err);
+                    }
+                }
+            );
+            
+            res.json({ 
+                message: "Sphere created successfully", 
+                sphereId: this.lastID 
+            });
+        }
+    );
+});
+
+// Protected route - Update sphere
+app.put('/api/spheres/:id', authenticateToken, (req, res) => {
+    const sphereId = req.params.id;
+    const { name, description, tags } = req.body;
+    
+    // Verify user is admin of the sphere
+    db.get(
+        "SELECT role FROM sphere_members WHERE sphere_id = ? AND user_id = ?",
+        [sphereId, req.user.id],
+        (err, member) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            if (!member || member.role !== 'admin') {
+                return res.status(403).json({ error: "Only sphere admins can update sphere details" });
+            }
+            
+            db.run(
+                `UPDATE spheres SET 
+                 name = COALESCE(?, name),
+                 description = COALESCE(?, description),
+                 tags = COALESCE(?, tags)
+                 WHERE id = ?`,
+                [name, description, tags, sphereId],
+                function(err) {
+                    if (err) {
+                        return res.status(500).json({ error: err.message });
+                    }
+                    if (this.changes === 0) {
+                        return res.status(404).json({ error: "Sphere not found" });
+                    }
+                    res.json({ message: "Sphere updated successfully" });
+                }
+            );
+        }
+    );
+});
+
+// Get posts for a specific sphere
+app.get('/api/spheres/:id/posts', (req, res) => {
+    const sphereId = req.params.id;
+    db.all(
+        `SELECT posts.*, users.username as author_name 
+         FROM posts 
+         LEFT JOIN users ON posts.author_id = users.id 
+         WHERE posts.sphere_id = ?
+         ORDER BY posts.created_at DESC`,
+        [sphereId],
+        (err, posts) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json(posts);
+        }
+    );
+});
+
+// Protected route - Join a sphere
+app.post('/api/spheres/:id/members', authenticateToken, (req, res) => {
+    const sphereId = req.params.id;
+    const userId = req.user.id;
+    const joined_at = new Date().toISOString();
+    
+    // Check if user is already a member
+    db.get(
+        "SELECT * FROM sphere_members WHERE sphere_id = ? AND user_id = ?",
+        [sphereId, userId],
+        (err, member) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            if (member) {
+                return res.status(400).json({ error: "User is already a member of this sphere" });
+            }
+            
+            db.run(
+                "INSERT INTO sphere_members (sphere_id, user_id, role, joined_at) VALUES (?, ?, ?, ?)",
+                [sphereId, userId, 'member', joined_at],
+                function(err) {
+                    if (err) {
+                        return res.status(500).json({ error: err.message });
+                    }
+                    res.json({ message: "Successfully joined sphere" });
+                }
+            );
+        }
+    );
+});
+
+// Get spheres a user has joined
+app.get('/api/user/:id/spheres', (req, res) => {
+    const userId = req.params.id;
+    
+    // If user profile is private, only allow self or admin
+    db.get("SELECT spheres_public FROM users WHERE id = ?", [userId], (err, user) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        
+        // If spheres aren't public and user isn't requesting their own spheres
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        let isOwnProfile = false;
+        
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                isOwnProfile = decoded.id == userId;
+            } catch (e) {
+                // Invalid token, continue as if not authenticated
+            }
+        }
+        
+        if (!user.spheres_public && !isOwnProfile) {
+            return res.status(403).json({ error: "This user's spheres are private" });
+        }
+        
+        db.all(
+            `SELECT spheres.*, sphere_members.role, sphere_members.joined_at
+             FROM spheres
+             JOIN sphere_members ON spheres.id = sphere_members.sphere_id
+             WHERE sphere_members.user_id = ?
+             ORDER BY sphere_members.joined_at DESC`,
+            [userId],
+            (err, spheres) => {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+                res.json(spheres);
+            }
+        );
+    });
+});
+
+// Search functionality
+app.get('/api/search', (req, res) => {
+    const query = `%${req.query.q}%`; // Add wildcards for LIKE query
+    const filter = req.query.filter || 'everything';
+    
+    let sql, params;
+    
+    switch(filter) {
+        case 'forum':
+            sql = `SELECT 'sphere' as type, id, name as title, description as content, NULL as author_name, created_at 
+                   FROM spheres WHERE name LIKE ? OR tags LIKE ?`;
+            params = [query, query];
+            break;
+            
+        case 'post':
+            sql = `SELECT 'post' as type, posts.id, posts.subject as title, posts.content, users.username as author_name, posts.created_at 
+                   FROM posts JOIN users ON posts.author_id = users.id 
+                   WHERE posts.subject LIKE ?`;
+            params = [query];
+            break;
+            
+        case 'description':
+            sql = `SELECT 'sphere' as type, id, name as title, description as content, NULL as author_name, created_at 
+                   FROM spheres WHERE description LIKE ?`;
+            params = [query];
+            break;
+            
+        case 'user':
+            sql = `SELECT 'user' as type, id, username as title, bio as content, NULL as author_name, created_at 
+                   FROM users WHERE username LIKE ?`;
+            params = [query];
+            break;
+            
+        case 'everything':
+        default:
+            sql = `SELECT 'sphere' as type, id, name as title, description as content, NULL as author_name, created_at 
+                   FROM spheres WHERE name LIKE ? OR description LIKE ? OR tags LIKE ?
+                   UNION
+                   SELECT 'post' as type, posts.id, posts.subject as title, posts.content, users.username as author_name, posts.created_at 
+                   FROM posts JOIN users ON posts.author_id = users.id 
+                   WHERE posts.subject LIKE ? OR posts.content LIKE ? OR posts.tags LIKE ?
+                   UNION
+                   SELECT 'user' as type, id, username as title, bio as content, NULL as author_name, created_at 
+                   FROM users WHERE username LIKE ? OR bio LIKE ?
+                   ORDER BY created_at DESC
+                   LIMIT 50`;
+            params = [query, query, query, query, query, query, query, query];
+            break;
+    }
+    
+    db.all(sql, params, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
+    });
 });
 
 // Start server

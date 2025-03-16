@@ -7,18 +7,18 @@
 html {
     font-size: 14px;
     font-family: Trubechet MS;
-    background-color: #2A2A2A; /* Dark earthy background */
-    color: #D1C6B1; /* Soft off-white text */
+    background-color: #2A2A2A; 
+    color: #D1C6B1; 
 }
 
 a {
-    color: #C19A6B; /* Warm light brown for links */
+    color: #C19A6B;
     font-weight: bolder;
     text-decoration: underline;
 }
 
 a:hover {
-    color: #B98D5D; /* Coppery highlight for hover */
+    color: #B98D5D; 
 }
 
 h1 {
@@ -39,7 +39,7 @@ h1 {
 }
 
 .title-row {
-    background-color: #4C4F33; /* Muted greenish brown */
+    background-color: #4C4F33;
     padding: 5px;
     border-radius: 5px;
     margin: 4px;
@@ -66,8 +66,8 @@ h1 {
     padding: 10px;
     margin: 4px;
     border-radius: 5px;
-    background-color: #5E3B2E; /* Muted greenish brown */
-    color: #D1C6B1; /* Ensures text contrast */
+    background-color: #6B5448; 
+    color: #D1C6B1;
 }
 
 .subforum-lastpost a {
@@ -138,7 +138,7 @@ header {
 }
 
 .navigation {
-    background-color: #4C4F33; /* Muted greenish brown */
+    background-color: #4C4F33; 
     padding: 10px;
     width: 65%;
     display: inline-block;
@@ -164,11 +164,11 @@ header {
     margin-inline: 20px;
     font-size: 20px;
     padding: 10px;
-    color: #D1C6B1; /* Soft off-white text */
+    color: #D1C6B1; 
 }
 
 .nav-item a:hover {
-    background-color: #B98D5D; /* Coppery highlight */
+    background-color: #B98D5D;
     color: #D1C6B1;
     border-radius: 5px;
 }
@@ -262,14 +262,14 @@ header {
 /* searchbar */
 
 .search-box {
-    border: solid 1px #6B7044; /* Mossy green border */
-    background-color: #3D3B2E; /* Deep earthy brown */
+    border: solid 1px #6B7044; 
+    background-color: #3D3B2E; 
     border-radius: 5px;
     margin-top: 10px;
     padding: 20px;
     display: flex;
     justify-content: center;
-    box-shadow: 1px 2px 3px #4C4F33; /* Muted shadow */
+    box-shadow: 1px 2px 3px #4C4F33; 
 }
 
 .search-box select {
@@ -282,11 +282,11 @@ header {
 
 .search-box button {
     padding: 10px;
-    background-color: #6B7044; /* Mossy green button */
+    background-color: #6B7044; 
 }
 
 .search-box button:hover {
-    background-color: #B98D5D; /* Coppery hover effect */
+    background-color: #B98D5D; 
     color: #D1C6B1;
     box-shadow: 1px 2px 3px #4C4F33;
 }
@@ -295,7 +295,7 @@ header {
 footer {
     margin-top: 20px;
     padding: 20px;
-    background-color: #4C4F33; /* Muted greenish brown */
+    background-color: #4C4F33; 
     display: block;
     text-align: center;
 }
@@ -305,8 +305,8 @@ footer {
 /*forum-template.html*/
 
 .forum-title { 
-    background-color: #4C4F33; /* Muted greenish brown */
-    color: #D1C6B1; /* Soft off-white text */
+    background-color: #4C4F33; 
+    color: #D1C6B1; 
     display: flex;
     justify-content: center;
     padding: 10px;
@@ -315,7 +315,7 @@ footer {
 }
 
 .forum-settings {
-    background-color: #6B7044; /* Mossy green background */
+    background-color: #6B7044; 
     color: #D1C6B1;
     display: flex;
     justify-content: center;
@@ -325,7 +325,7 @@ footer {
 }
 
 .forum-settings-button {
-    background-color: #B98D5D; /* Coppery highlight */
+    background-color: #B98D5D; 
     color: #D1C6B1;
     padding: 10px;
     border-radius: 5px;
@@ -333,7 +333,7 @@ footer {
 }
 
 .forum-settings-button:hover {
-    background-color: #6B5448; /* Rich earthy brown */
+    background-color: #6B5448; 
     color: #D1C6B1;
     box-shadow: 1px 2px 3px #4C4F33;
 }
@@ -1069,7 +1069,7 @@ footer {
 /* post-template.html */
 
 .post-container {
-    background-color: #6B5448;
+    background-color: #4C4F33;
     border-radius: 12px;
     margin: 20px;
     padding: 16px;
@@ -1077,7 +1077,7 @@ footer {
 }
 
 .post-title {
-    background-color: #4C4F33;
+    background-color: #6B7044;
     color: #D1C6B1;
     text-align: center;
     padding: 12px;
@@ -1094,17 +1094,6 @@ footer {
     border-radius: 8px;
 }
 
-.post-tags {
-    background-color: #5E3B2E;
-    color: #D1C6B1;
-    display: flex;
-    justify-content: center;
-    padding: 10px;
-    border-radius: 5px;
-    margin: 10px;
-    width: 95%;
-}
-
 .post-meta {
     display: flex;
     justify-content: space-between;
@@ -1114,7 +1103,7 @@ footer {
 }
 
 .post-actions button {
-    background-color: #7A8684;
+    background-color: #6B7044;
     color: #DBD9CD;
     padding: 8px 16px;
     border-radius: 6px;
@@ -1127,18 +1116,8 @@ footer {
     background-color: #B98D5D;
 }
 
-#userPostTags {
-    color: #2F2E2C;
-    display: flex;
-    justify-content: center;
-    padding: 10px;
-    border-radius: 5px;
-    margin: 10px;
-    width: 95%;
-}
-
 .post-author {
-    background-color: #5E3B2E;
+    background-color: #6B5448;
     color: #D1C6B1;
     display: flex;
     justify-content: center;
@@ -1181,7 +1160,7 @@ footer {
 .reply-form button {
     grid-column: span 2;
     padding: 10px;
-    background-color: #7A8684;
+    background-color: #6B7044;
     color: #DBD9CD;
     border-radius: 5px;
     border: none;

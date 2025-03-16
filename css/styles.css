@@ -12,7 +12,7 @@ html {
 }
 
 a {
-    color: #C19A6B; /* Dark brown for better contrast */
+    color: #C19A6B;
     font-weight: bolder;
     text-decoration: underline;
 }
@@ -20,7 +20,7 @@ a {
 h1 {
     font-size: 16px;
     font-weight: bolder;
-    color: #2F2E2C; /* Primary 1 */
+    color: #2F2E2C; 
 }
 
 /* index.html */
@@ -65,7 +65,7 @@ h1 {
     margin: 4px;
     border-radius: 5px;
     background-color: #6B5448;
-    color: #DBD9CD; /* Ensures text contrast */
+    color: #DBD9CD; 
 }
 
 .subforum-lastpost a{

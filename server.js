@@ -3,6 +3,8 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -266,7 +268,7 @@ app.get('/api/user/:id', authenticateToken, (req, res) => {
 
     db.get(
         `SELECT id, username, email, bio, location, birthday, created_at, 
-         email_public, location_public, birthday_public, spheres_public 
+         email_public, location_public, birthday_public, spheres_public, profile_picture
          FROM users WHERE id = ?`,
         [req.params.id],
         (err, user) => {
@@ -290,28 +292,75 @@ app.put('/api/user/:id', authenticateToken, (req, res) => {
         return res.status(403).json({ error: "Unauthorized access" });
     }
 
-    const { email, bio, location, birthday, email_public, location_public, birthday_public, spheres_public } = req.body;
+    const { username, email, bio, location, birthday, email_public, location_public, birthday_public, spheres_public } = req.body;
+    
+    // If username is provided, check if it's already taken
+    if (username) {
+        db.get("SELECT id FROM users WHERE username = ? AND id != ?", [username, req.params.id], (err, existingUser) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            if (existingUser) {
+                return res.status(400).json({ error: "Username already taken" });
+            }
+            
+            // Continue with update if username is available
+            updateUserProfile();
+        });
+    } else {
+        // No username change, proceed with update
+        updateUserProfile();
+    }
+    
+    function updateUserProfile() {
+        db.run(
+            `UPDATE users SET 
+             username = COALESCE(?, username),
+             email = COALESCE(?, email),
+             bio = COALESCE(?, bio),
+             location = COALESCE(?, location),
+             birthday = COALESCE(?, birthday),
+             email_public = COALESCE(?, email_public),
+             location_public = COALESCE(?, location_public),
+             birthday_public = COALESCE(?, birthday_public),
+             spheres_public = COALESCE(?, spheres_public)
+             WHERE id = ?`,
+            [username, email, bio, location, birthday, email_public, location_public, birthday_public, spheres_public, req.params.id],
+            function(err) {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+                res.json({ message: "Profile updated successfully" });
+            }
+        );
+    }
+});
+
+// Profile picture upload endpoint
+app.post('/api/user/:id/profile-picture', authenticateToken, upload.single('profile_picture'), (req, res) => {
+    // Verify user is updating their own profile
+    if (req.user.id != req.params.id) {
+        return res.status(403).json({ error: "Unauthorized access" });
+    }
+    
+    if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+    }
+    
+    // Save the file path to the database
+    const filePath = `/uploads/${req.file.filename}`;
     
     db.run(
-        `UPDATE users SET 
-         email = COALESCE(?, email),
-         bio = COALESCE(?, bio),
-         location = COALESCE(?, location),
-         birthday = COALESCE(?, birthday),
-         email_public = COALESCE(?, email_public),
-         location_public = COALESCE(?, location_public),
-         birthday_public = COALESCE(?, birthday_public),
-         spheres_public = COALESCE(?, spheres_public)
-         WHERE id = ?`,
-        [email, bio, location, birthday, email_public, location_public, birthday_public, spheres_public, req.params.id],
+        "UPDATE users SET profile_picture = ? WHERE id = ?",
+        [filePath, req.params.id],
         function(err) {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
-            if (this.changes === 0) {
-                return res.status(404).json({ error: "User not found" });
-            }
-            res.json({ message: "Profile updated successfully" });
+            res.json({ 
+                message: "Profile picture updated successfully",
+                filePath: filePath
+            });
         }
     );
 });

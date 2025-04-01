@@ -1,7 +1,7 @@
 <!doctype html>
 <head>
     <title>GatherSphere</title>
-    <link rel="icon" href="../images/Globe.png" type=""image/x-icon">
+    <link rel="icon" href="../images/Globe.png" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="../css/darkmode.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
@@ -29,15 +29,16 @@
 </div>
 
 <div class="profile-picture">
-    <img src="" alt="profile picture">
-    <button class="edit-profile-pic">Change Picture</button>
+    <img src="/uploads/default-profile.png" id="profileImage" alt="profile picture">
+    <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
+    <button class="edit-profile-pic" id="profilePicButton">Change Picture</button>
 </div>
 
 <table class="account-info-table">
     <tr>
         <th>My Username:</th>
         <td id="userID">Username</td>
-        <td><button class="edit-button" data-field="username" disabled>[Edit]</button></td>
+        <td><button class="edit-button" data-field="username">[Edit]</button></td>
     </tr>
     <tr>
         <th>My Email:</th>
@@ -195,6 +196,9 @@ const userId = localStorage.getItem('userId');
 // Redirect to login if no auth token
 if (!authToken) {
     window.location.href = 'login.html';
+} else {
+    // Call loadUserData ONLY if logged in
+    loadUserData(); 
 }
 
 // Load user data with authentication
@@ -223,6 +227,25 @@ async function loadUserData() {
         document.getElementById('userLocation').textContent = user.location || 'Location not set';
         document.getElementById('userBirthday').textContent = user.birthday || 'Birthday not set';
         document.getElementById('joinDate').textContent = new Date(user.created_at).toLocaleDateString();
+
+        const profileImageElement = document.getElementById('profileImage');
+        if (user.profile_picture && user.profile_picture !== '') {
+             // Ensure the path starts correctly (it should already, based on server.js)
+            let imagePath = user.profile_picture;
+            if (!imagePath.startsWith('/')) {
+                 imagePath = '/' + imagePath; // Add leading slash if missing
+            }
+            console.log("Setting profile image src to:", imagePath); // Debugging line
+            profileImageElement.src = imagePath; 
+            profileImageElement.onerror = function() {
+                // Fallback if the image fails to load (e.g., file deleted)
+                console.error("Failed to load profile image at path:", imagePath);
+                profileImageElement.src = '/uploads/default-profile.png'; 
+            };
+        } else {
+            console.log("No profile picture found in user data, using default."); // Debugging line
+            profileImageElement.src = '/uploads/default-profile.png'; // Default image
+        }
         
         // Set preference checkboxes
         document.getElementById('emailPreference').checked = user.email_public;
@@ -321,6 +344,56 @@ async function loadUserPosts() {
     }
 }
 
+// Handle profile picture change
+document.getElementById('profilePicButton').addEventListener('click', function() {
+    document.getElementById('profilePicInput').click();
+});
+
+document.getElementById('profilePicInput').addEventListener('change', function(event) {
+    if (event.target.files && event.target.files[0]) {
+        const file = event.target.files[0];
+        const formData = new FormData();
+        formData.append('profile_picture', file);
+        
+        // Display a preview of the image
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profileImage').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+        
+        // Upload the image to the server
+        fetch(`/api/user/${userId}/profile-picture`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: formData
+        })
+        .then(response => {
+            if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('username');
+                window.location.href = '../Index.html';
+                return;
+            }
+            return response.json();
+        })
+        .then(result => {
+            if (result && result.error) {
+                alert('Error updating profile picture: ' + result.error);
+            } else if (result) {
+                alert('Profile picture updated successfully');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to update profile picture');
+        });
+    }
+});
+
 // Handle edit buttons
 document.querySelectorAll('.edit-button').forEach(button => {
     button.addEventListener('click', function() {
@@ -363,6 +436,12 @@ document.querySelectorAll('.edit-button').forEach(button => {
                 if (result && result.error) {
                     alert('Error updating profile: ' + result.error);
                     loadUserData();
+                } else {
+                    // If username was changed, update it in localStorage
+                    if (field === 'username') {
+                        localStorage.setItem('username', td.textContent);
+                    }
+                    alert(`${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`);
                 }
             })
             .catch(error => {

@@ -20,21 +20,19 @@
                 </ul>
             </nav>
             <a href="#" class="nav-icon" id="navBar" onclick="openNavBar()"><img src="./images/nav-open.png" alt= "Navigation"></a>
-            <div class="title">GatherSphere <img class="title-icon" src="./images/Globe.png" alt = " "></div>
+            <div class="title">GatherSphere <img class="title-icon" href="Index.html" src="./images/Globe.png" alt = " "></div>
         </div>
         <!--Search Box-->
         <div class="search-box">
             <select name="" id="searchFilter">
                 <option value="everything">Everything</option>
-                <option value="forum">Forums</option>
+                <option value="forum">Sphere Titles</option>
                 <option value="post">Post Titles</option>
-                <option value="description">Descriptions</option>
+                <option value="description">Sphere Descriptions</option>
                 <option value="user">Users</option>
             </select>
             <input type="text" name="q" id="searchQuery" placeholder="Search the Sphere!">
             <button class="search" id="searchButton">Search</button>
-            <a href="./pages/forum-template.html"><button class="search">View Forums</button></a>
-            <button class="create-post-button" onclick="window.location.href='./pages/forum-template.html#createPost'">Create Post</button>
         </div>
     </header>
 
@@ -42,7 +40,7 @@
     <div class="container">
         <div class="subforum" id="mostRecent">
             <div class="title-row">
-                <h1>Most Recent</h1>
+                <h1>Most Recent Spheres</h1>
             </div>
             <!-- Spheres will be loaded here dynamically -->
         </div>

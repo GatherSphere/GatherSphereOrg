@@ -314,6 +314,40 @@ footer {
     margin: 10px;
 }
 
+.forum-description {
+    background-color: #4C4F33; 
+    color: #D1C6B1; 
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.join-sphere {
+    background-color: #6B7044;
+    color: #D1C6B1;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.join-sphere-button {
+    background-color: #B98D5D;
+    color: #D1C6B1;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.join-sphere-button:hover {
+    background-color: #6B5448;
+    color: #D1C6B1;
+    box-shadow: 1px 2px 3px #4C4F33;
+}
+
 .forum-settings {
     background-color: #6B7044; 
     color: #D1C6B1;

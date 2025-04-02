@@ -20,7 +20,7 @@
                 </ul>
             </nav>
             <a href="#" class="nav-icon" id="navBar" onclick="openNavBar()"><img src="../images/nav-open.png" alt= "Navigation"></a>
-            <div class="title">GatherSphere <img class="title-icon" href= "../Index.html" src=../images/Globe.png" alt = " "></div>
+            <div class="title">GatherSphere <img class="title-icon" href= "../Index.html" src="../images/Globe.png" alt = " "></div>
         </div>
     </header>
 <!--Account page title-->
@@ -28,9 +28,11 @@
     <h2 id="welcomeMessage">Hello Username!</h2>
 </div>
 
+<div id="profileContent">
 <div class="profile-picture">
-    <img src="" alt="profile picture">
-    <button class="edit-profile-pic">Change Picture</button>
+    <img src="/uploads/default-profile.png" id="profileImage" alt="profile picture">
+    <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
+    <button class="edit-profile-pic" id="profilePicButton">Change Picture</button>
 </div>
 
 <table class="account-info-table">
@@ -38,7 +40,7 @@
         <th>My Username:</th>
         <td colspan= "2" id="userID">Username</td>
     </tr>
-    <tr>
+    <tr id="emailRow">
         <th>My Email:</th>
         <td id="userEmail" contenteditable="false">Email</td>
         <td><button class="edit-button" data-field="email">[Edit]</button></td>
@@ -48,12 +50,12 @@
         <td id="userBio" contenteditable="false">Hi! I am a totally REAL user of GatherSphere</td>
         <td><button class="edit-button" data-field="bio">[Edit]</button></td>
     </tr>
-    <tr>
+    <tr id="locationRow">
         <th>Location:</th>
         <td id="userLocation" contenteditable="false">City, State, Country</td>
         <td><button class="edit-button" data-field="location">[Edit]</button></td>
     </tr>
-    <tr>
+    <tr id="birthdayRow">
         <th>Birthday:</th>
         <td id="userBirthday" contenteditable="false">MM/DD/YYYY</td>
         <td><button class="edit-button" data-field="birthday">[Edit]</button></td>
@@ -91,7 +93,7 @@
 
 <!--Spheres Joined by and Created by User-->
 <div class="account-divider">
-    <h2>My Spheres</h2>
+    <h2 id="spheresHeading">My Spheres</h2>
     <button class="create-sphere">Create Sphere</button>
 </div>
 
@@ -132,7 +134,7 @@
 </div>
 
 <div class="account-divider">
-    <h2>My Posts</h2>
+    <h2 id="postsHeading">My Posts</h2>
 </div>
 
 <!--Posts Table-->
@@ -164,63 +166,139 @@
 </footer>
 <script src="../JavaScript/nav.js"></script>
 <script>
-// Get user info from localStorage
+// Get user info from localStorage and URL parameters
 const authToken = localStorage.getItem('authToken');
-const userId = localStorage.getItem('userId');
+const currentUserId = localStorage.getItem('userId');
+const urlParams = new URLSearchParams(window.location.search);
+const profileUserId = urlParams.get('id') || currentUserId; // If no ID specified, show current user
+const isOwnProfile = profileUserId == currentUserId;
 
-// Redirect to login if no auth token
-if (!authToken) {
+// Redirect to login if no auth token (only for own profile)
+if (!authToken && !profileUserId) {
     window.location.href = 'login.html';
 }
 
-// Load user data with authentication
+// Load user data
 async function loadUserData() {
     try {
-        const response = await fetch(`/api/user/${userId}`, {
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
-        });
+        // Different endpoint for own profile vs other users
+        const endpoint = isOwnProfile ? 
+            `/api/user/${profileUserId}` : 
+            `/api/user/${profileUserId}/profile`;
+        
+        const headers = authToken ? 
+            { 'Authorization': `Bearer ${authToken}` } : 
+            {};
+        
+        const response = await fetch(endpoint, { headers });
         
         if (response.status === 401 || response.status === 403) {
-            // Token expired or invalid
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userId');
-            localStorage.removeItem('username');
-            window.location.href = 'login.html';
-            return;
+            if (isOwnProfile) {
+                // Token expired or invalid for own profile
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('username');
+                window.location.href = 'login.html';
+                return;
+            } else {
+                // Profile is private or not accessible
+                document.getElementById('welcomeMessage').textContent = `Profile not accessible`;
+                document.getElementById('profileContent').style.display = 'none';
+                return;
+            }
         }
 
         const user = await response.json();
-        document.getElementById('welcomeMessage').textContent = `Hello ${user.username}!`;
+        
+        // Display username in welcome message
+        document.getElementById('welcomeMessage').textContent = isOwnProfile ? 
+            `Hello ${user.username}!` : 
+            `${user.username}'s Profile`;
+            
+        // Fill in user data
         document.getElementById('userID').textContent = user.username;
-        document.getElementById('userEmail').textContent = user.email;
         document.getElementById('userBio').textContent = user.bio || 'No bio yet';
-        document.getElementById('userLocation').textContent = user.location || 'Location not set';
-        document.getElementById('userBirthday').textContent = user.birthday || 'Birthday not set';
         document.getElementById('joinDate').textContent = new Date(user.created_at).toLocaleDateString();
         
-        // Set preference checkboxes
-        document.getElementById('emailPreference').checked = user.email_public;
-        document.getElementById('locationPreference').checked = user.location_public;
-        document.getElementById('birthdayPreference').checked = user.birthday_public;
-        document.getElementById('spherePreference').checked = user.spheres_public;
+        // Display profile picture if available
+        if (user.profile_picture) {
+            document.getElementById('profileImage').src = user.profile_picture;
+        } else {
+            document.getElementById('profileImage').src = '/uploads/default-profile.png'; // Default image
+        }
+        
+        // Only show private information if viewing own profile or if set to public
+        if (isOwnProfile || user.email_public) {
+            document.getElementById('emailRow').style.display = '';
+            document.getElementById('userEmail').textContent = user.email;
+        } else {
+            document.getElementById('emailRow').style.display = 'none';
+        }
+        
+        if (isOwnProfile || user.location_public) {
+            document.getElementById('locationRow').style.display = '';
+            document.getElementById('userLocation').textContent = user.location || 'Location not set';
+        } else {
+            document.getElementById('locationRow').style.display = 'none';
+        }
+        
+        if (isOwnProfile || user.birthday_public) {
+            document.getElementById('birthdayRow').style.display = '';
+            document.getElementById('userBirthday').textContent = user.birthday || 'Birthday not set';
+        } else {
+            document.getElementById('birthdayRow').style.display = 'none';
+        }
+        
+        // Show edit buttons, preferences, and create sphere button only on own profile
+        const editButtons = document.querySelectorAll('.edit-button');
+        const preferencesRow = document.getElementById('userPreferences');
+        const createSphereButton = document.querySelector('.create-sphere');
+        
+        if (isOwnProfile) {
+            editButtons.forEach(btn => btn.style.display = '');
+            preferencesRow.style.display = '';
+            createSphereButton.style.display = '';
+            document.getElementById('profilePicButton').style.display = '';
+            
+            // Set preference checkboxes for own profile
+            document.getElementById('emailPreference').checked = user.email_public;
+            document.getElementById('locationPreference').checked = user.location_public;
+            document.getElementById('birthdayPreference').checked = user.birthday_public;
+            document.getElementById('spherePreference').checked = user.spheres_public;
+        } else {
+            editButtons.forEach(btn => btn.style.display = 'none');
+            preferencesRow.style.display = 'none';
+            createSphereButton.style.display = 'none';
+            document.getElementById('profilePicButton').style.display = 'none';
+        }
         
         // Load user's spheres and posts
-        loadUserSpheres();
-        loadUserPosts();
+        loadUserSpheres(user.spheres_public);
+        loadUserPosts(user.posts_public);
+        
+        // Update header text based on whose profile is being viewed
+        if (!isOwnProfile) {
+            const username = document.getElementById('userID').textContent;
+            document.getElementById('spheresHeading').textContent = `${username}'s Spheres`;
+            document.getElementById('postsHeading').textContent = `${username}'s Posts`;
+        }
     } catch (error) {
         console.error('Error loading user data:', error);
     }
 }
 
 // Load user's spheres
-async function loadUserSpheres() {
+async function loadUserSpheres(spheresPublic) {
     try {
-        const response = await fetch(`/api/user/${userId}/spheres`, {
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
+        // If viewing someone else's profile and spheres are private, don't try to load
+        if (!isOwnProfile && !spheresPublic) {
+            const sphereTableBody = document.querySelector('.sphere-table tbody');
+            sphereTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center;">This user\'s spheres are private</td></tr>';
+            return;
+        }
+
+        const response = await fetch(`/api/user/${profileUserId}/spheres`, {
+            headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
         });
         
         if (response.status === 401 || response.status === 403) {
@@ -234,7 +312,7 @@ async function loadUserSpheres() {
         if (spheres.length === 0) {
             const row = document.createElement('tr');
             row.className = 'table-row';
-            row.innerHTML = '<td colspan="3" style="text-align: center;">You haven\'t joined any spheres yet</td>';
+            row.innerHTML = `<td colspan="3" style="text-align: center;">${isOwnProfile ? 'You haven\'t' : 'This user hasn\'t'} joined any spheres yet</td>`;
             sphereTableBody.appendChild(row);
             return;
         }
@@ -244,7 +322,7 @@ async function loadUserSpheres() {
             row.className = 'table-row';
             row.innerHTML = `
                 <td class="sphere"><a href="forum-template.html?id=${sphere.id}">${sphere.name}</a><br>
-                <span>Started by <b><a href="#">${sphere.creator_name || 'Unknown'}</a></b></span></td>
+                <span>Started by <b><a href="account.html?id=${sphere.creator_id}">${sphere.creator_name || 'Unknown'}</a></b></span></td>
                 <td class="sphere-stats">${sphere.member_count || 0} members | ${sphere.post_count || 0} posts</td>
                 <td class="last-post">Last post on <small>${sphere.last_post_date ? new Date(sphere.last_post_date).toLocaleDateString() : 'N/A'}</small></td>
             `;
@@ -256,13 +334,17 @@ async function loadUserSpheres() {
 }
 
 // Load user's posts
-async function loadUserPosts() {
+async function loadUserPosts(postsPublic) {
     try {
-        // This endpoint doesn't exist yet, but would be similar to other API calls
-        const response = await fetch(`/api/user/${userId}/posts`, {
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
+        // If viewing someone else's profile and posts are private, don't try to load
+        if (!isOwnProfile && !postsPublic) {
+            const postsTableBody = document.querySelector('.posts-table tbody');
+            postsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center;">This user\'s posts are private</td></tr>';
+            return;
+        }
+
+        const response = await fetch(`/api/user/${profileUserId}/posts`, {
+            headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
         });
         
         if (response.status === 401 || response.status === 403) {
@@ -276,7 +358,7 @@ async function loadUserPosts() {
         if (posts.length === 0) {
             const row = document.createElement('tr');
             row.className = 'table-row';
-            row.innerHTML = '<td colspan="3" style="text-align: center;">You haven\'t created any posts yet</td>';
+            row.innerHTML = `<td colspan="3" style="text-align: center;">${isOwnProfile ? 'You haven\'t' : 'This user hasn\'t'} created any posts yet</td>`;
             postsTableBody.appendChild(row);
             return;
         }
@@ -286,7 +368,7 @@ async function loadUserPosts() {
             row.className = 'table-row';
             row.innerHTML = `
                 <td class="subject"><a href="post-view.html?id=${post.id}">${post.subject}</a><br>
-                <span>Started by <b><a href="#">${post.author_name || 'You'}</a></b></span></td>
+                <span>Started by <b><a href="account.html?id=${post.author_id}">${post.author_name || (isOwnProfile ? 'You' : profileUserId)}</a></b></span></td>
                 <td class="replies">${post.replies || 0} replies | ${post.likes || 0} likes<br>${post.views || 0} views</td>
                 <td class="last-reply">Last reply on <small>${post.last_reply_date ? new Date(post.last_reply_date).toLocaleDateString() : 'N/A'}</small></td>
             `;
@@ -300,6 +382,9 @@ async function loadUserPosts() {
 // Handle edit buttons
 document.querySelectorAll('.edit-button').forEach(button => {
     button.addEventListener('click', function() {
+        // Only allow editing own profile
+        if (!isOwnProfile) return;
+        
         const field = this.getAttribute('data-field');
         const td = document.getElementById('user' + field.charAt(0).toUpperCase() + field.slice(1));
         
@@ -317,7 +402,7 @@ document.querySelectorAll('.edit-button').forEach(button => {
             const updatedData = {};
             updatedData[field] = td.textContent;
             
-            fetch(`/api/user/${userId}`, {
+            fetch(`/api/user/${currentUserId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -350,6 +435,50 @@ document.querySelectorAll('.edit-button').forEach(button => {
     });
 });
 
+// Handle profile picture upload
+document.getElementById('profilePicButton').addEventListener('click', function() {
+    if (!isOwnProfile) return; // Only allow on own profile
+    document.getElementById('profilePicInput').click();
+});
+
+document.getElementById('profilePicInput').addEventListener('change', function(event) {
+    if (event.target.files.length > 0) {
+        const file = event.target.files[0];
+        const formData = new FormData();
+        formData.append('profile_picture', file);
+        
+        fetch(`/api/user/${currentUserId}/profile-picture`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: formData
+        })
+        .then(response => {
+            if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('username');
+                window.location.href = 'login.html';
+                return;
+            }
+            return response.json();
+        })
+        .then(result => {
+            if (result && result.filePath) {
+                document.getElementById('profileImage').src = result.filePath;
+                alert('Profile picture updated successfully');
+            } else if (result && result.error) {
+                alert('Error updating profile picture: ' + result.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to update profile picture');
+        });
+    }
+});
+
 // Toggle preferences form
 document.querySelector('.preferences-toggle').addEventListener('click', function() {
     const preferencesForm = document.querySelector('.preference-form');
@@ -365,7 +494,7 @@ document.querySelector('.save-preference').addEventListener('click', function() 
         spheres_public: document.getElementById('spherePreference').checked
     };
     
-    fetch(`/api/user/${userId}`, {
+    fetch(`/api/user/${currentUserId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

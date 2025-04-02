@@ -41,6 +41,7 @@ def create_tables():
             location_public BOOLEAN DEFAULT 0,
             birthday_public BOOLEAN DEFAULT 0,
             spheres_public BOOLEAN DEFAULT 1,
+            posts_public BOOLEAN DEFAULT 1,
             profile_picture TEXT
         );
     """)
@@ -143,20 +144,21 @@ def add_dummy_users(n=10):
         location_public = random.choice([0, 1])
         birthday_public = random.choice([0, 1])
         spheres_public = random.choice([0, 1])
-        profile_picture = f"avatar_{random.randint(1, 10)}.jpg"  # Random placeholder avatars
+        posts_public = random.choice([0, 1])
+        profile_picture = f"/uploads/avatar_{random.randint(1, 10)}.jpg"  # Random placeholder avatars
         
         users.append((
             username, email, password, bio, location, birthday, created_at, 
-            email_public, location_public, birthday_public, spheres_public, profile_picture
+            email_public, location_public, birthday_public, spheres_public, posts_public, profile_picture
         ))
     
     try:
         cursor.executemany("""
             INSERT INTO users (
                 username, email, password, bio, location, birthday, created_at,
-                email_public, location_public, birthday_public, spheres_public, profile_picture
+                email_public, location_public, birthday_public, spheres_public, posts_public, profile_picture
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """, users)
         conn.commit()
         print(f"Inserted {cursor.rowcount} dummy users into 'users' table.")
@@ -367,10 +369,10 @@ def check_table_schema():
     if 'sphere_id' not in columns:
         tables_to_update['posts'] = True
     
-    # Check users table for profile_picture column
+    # Check users table for profile_picture column and posts_public column
     cursor.execute("PRAGMA table_info(users);")
     user_columns = {column[1].lower(): column for column in cursor.fetchall()}
-    if 'profile_picture' not in user_columns:
+    if 'profile_picture' not in user_columns or 'posts_public' not in user_columns:
         tables_to_update['users'] = True
     
     # Check for other required columns in the future
@@ -454,10 +456,24 @@ def upgrade_schema(tables_to_update):
         print("Posts table updated successfully.")
     
     if 'users' in tables_to_update:
-        print("Updating users table schema to add profile_picture column...")
+        print("Updating users table schema...")
+        
+        # Check which columns need to be added
+        cursor.execute("PRAGMA table_info(users);")
+        user_columns = {column[1].lower(): column for column in cursor.fetchall()}
+        
         try:
-            cursor.execute("ALTER TABLE users ADD COLUMN profile_picture TEXT;")
-            print("Users table updated successfully with profile_picture column.")
+            # Add profile_picture column if it doesn't exist
+            if 'profile_picture' not in user_columns:
+                cursor.execute("ALTER TABLE users ADD COLUMN profile_picture TEXT;")
+                print("Added profile_picture column to users table")
+            
+            # Add posts_public column if it doesn't exist
+            if 'posts_public' not in user_columns:
+                cursor.execute("ALTER TABLE users ADD COLUMN posts_public BOOLEAN DEFAULT 1;")
+                print("Added posts_public column to users table")
+                
+            print("Users table updated successfully")
         except sqlite3.Error as e:
             print(f"Error updating users table: {e}")
     

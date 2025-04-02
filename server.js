@@ -259,6 +259,67 @@ app.post('/api/login', (req, res) => {
     );
 });
 
+// Public route - Get basic user profile (for other users to view)
+app.get('/api/user/:id/profile', (req, res) => {
+    const userId = req.params.id;
+    
+    // Get token from request headers if available (for logged-in users viewing others)
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    let currentUserId = null;
+    
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            currentUserId = decoded.id;
+        } catch (e) {
+            // Invalid token, continue as if not authenticated
+        }
+    }
+    
+    // If viewing own profile, redirect to the authenticated endpoint
+    if (currentUserId && currentUserId == userId) {
+        return res.redirect(`/api/user/${userId}`);
+    }
+    
+    // Fetch user profile with privacy settings respected
+    db.get(
+        `SELECT id, username, bio, created_at, 
+         email, email_public, 
+         location, location_public, 
+         birthday, birthday_public, 
+         spheres_public, posts_public, profile_picture
+         FROM users WHERE id = ?`,
+        [userId],
+        (err, user) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            if (!user) {
+                return res.status(404).json({ error: "User not found" });
+            }
+            
+            // Return public profile with only public fields
+            res.json({
+                id: user.id,
+                username: user.username,
+                bio: user.bio,
+                created_at: user.created_at,
+                profile_picture: user.profile_picture,
+                // Only include private fields if they're set to public
+                email: user.email_public ? user.email : null,
+                email_public: user.email_public,
+                location: user.location_public ? user.location : null,
+                location_public: user.location_public,
+                birthday: user.birthday_public ? user.birthday : null,
+                birthday_public: user.birthday_public,
+                spheres_public: user.spheres_public,
+                posts_public: user.posts_public
+            });
+        }
+    );
+});
+
 // Protected route example - Get user profile
 app.get('/api/user/:id', authenticateToken, (req, res) => {
     // Verify user is accessing their own profile or is admin
@@ -767,6 +828,58 @@ app.get('/api/spheres/:id/members', authenticateToken, (req, res) => {
             res.json(members);
         }
     );
+});
+
+// Get posts for a specific user
+app.get('/api/user/:id/posts', (req, res) => {
+    const userId = req.params.id;
+    
+    // Check if requesting own profile or if posts are public
+    db.get("SELECT posts_public FROM users WHERE id = ?", [userId], (err, user) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        
+        // Determine if requester is the profile owner
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        let isOwnProfile = false;
+        
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                isOwnProfile = decoded.id == userId;
+            } catch (e) {
+                // Invalid token, continue as if not authenticated
+            }
+        }
+        
+        // If posts aren't public and not viewing own profile, deny access
+        if (!user.posts_public && !isOwnProfile) {
+            return res.status(403).json({ error: "This user's posts are private" });
+        }
+        
+        // Query posts with additional data for display
+        db.all(
+            `SELECT posts.*, users.username as author_name,
+             (SELECT COUNT(*) FROM replies WHERE post_id = posts.id) as replies_count,
+             (SELECT MAX(created_at) FROM replies WHERE post_id = posts.id) as last_reply_date
+             FROM posts
+             LEFT JOIN users ON posts.author_id = users.id
+             WHERE posts.author_id = ?
+             ORDER BY posts.created_at DESC`,
+            [userId],
+            (err, posts) => {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+                res.json(posts);
+            }
+        );
+    });
 });
 
 // Start server

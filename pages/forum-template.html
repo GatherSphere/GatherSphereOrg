@@ -120,6 +120,7 @@ const authToken = localStorage.getItem('authToken');
 const userId = localStorage.getItem('userId');
 let currentSphereId = null;
 let isAdmin = false;
+let isMember = false; // Track if current user is a member
 
 // Get sphere ID from URL parameters
 function getSphereId() {
@@ -137,6 +138,9 @@ async function loadSphereData() {
         }
         
         currentSphereId = sphereId;
+        
+        // Check membership status immediately after setting currentSphereId
+        checkMembershipStatus(sphereId);
         
         // Fetch sphere data
         const response = await fetch(`/api/spheres/${sphereId}`);
@@ -197,6 +201,104 @@ async function loadSphereData() {
     } catch (error) {
         console.error('Error loading sphere data:', error);
         document.getElementById('forumTitle').textContent = 'Error loading sphere';
+    }
+}
+
+// Check if user is member of the sphere and update UI accordingly
+async function checkMembershipStatus(sphereId) {
+    try {
+        // Handle non-logged in users
+        if (!authToken || !userId) {
+            const joinButton = document.getElementById('joinSphereButton');
+            joinButton.disabled = true;
+            joinButton.textContent = 'Login to Join';
+            joinButton.addEventListener('click', () => {
+                window.location.href = 'login.html';
+            });
+            return;
+        }
+        
+        const response = await fetch(`/api/spheres/${sphereId}/members`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const members = await response.json();
+            const currentUser = members.find(member => member.user_id == userId);
+            
+            // Update membership status
+            isMember = !!currentUser;
+            
+            // Update UI based on membership status
+            updateJoinButtonState();
+        }
+    } catch (error) {
+        console.error('Error checking membership status:', error);
+    }
+}
+
+// Update Join Button state based on membership status
+function updateJoinButtonState() {
+    const joinButton = document.getElementById('joinSphereButton');
+    const createPostButton = document.querySelector('.create-post-button');
+    
+    if (isMember) {
+        joinButton.textContent = '✓ Joined';
+        joinButton.disabled = true;
+        joinButton.classList.add('joined');
+        
+        // Enable create post button for members
+        createPostButton.style.display = 'block';
+    } else {
+        joinButton.textContent = 'Join Sphere';
+        joinButton.disabled = false;
+        joinButton.classList.remove('joined');
+        
+        // Hide create post button for non-members
+        createPostButton.style.display = 'none';
+        
+        // Add click event listener to handle joining
+        joinButton.addEventListener('click', handleJoinSphere);
+    }
+}
+
+// Handle Join Sphere button click
+async function handleJoinSphere() {
+    if (!authToken) {
+        alert('Please log in to join this sphere');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/spheres/${currentSphereId}/members`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            // Update UI to reflect successful join
+            isMember = true;
+            updateJoinButtonState();
+            
+            // Show success message
+            alert('Successfully joined sphere!');
+            
+            // Refresh sphere data to update member count
+            loadSphereData();
+        } else {
+            // Show error message
+            alert(result.error || 'Failed to join sphere. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error joining sphere:', error);
+        alert('An error occurred while trying to join the sphere');
     }
 }
 
@@ -380,6 +482,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Load sphere data
     loadSphereData();
+    
+    // Check membership status
+    checkMembershipStatus(currentSphereId);
     
     // Initial form state
     document.getElementById('createPost').style.display = 'none';

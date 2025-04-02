@@ -222,12 +222,16 @@ def add_dummy_spheres(n=5):
             joined_at = sphere[2]  # Same as created_at
             sphere_members.append((sphere_id, creator_id, 'admin', joined_at))
             
-            # Add some random members
-            for _ in range(random.randint(3, 10)):
-                member_id = random.choice(user_ids)
-                if member_id != creator_id:  # Don't duplicate the creator
-                    member_joined = fake.date_time_between(start_date=joined_at, end_date='now').isoformat() + 'Z'
-                    sphere_members.append((sphere_id, member_id, 'member', member_joined))
+            # Add some random members (but not all users)
+            # This ensures there are non-member users who can test the Join Sphere feature
+            member_count = min(random.randint(2, 5), len(user_ids) - 1)  # Leave at least 1 user not a member
+            potential_members = [uid for uid in user_ids if uid != creator_id]
+            random.shuffle(potential_members)
+            selected_members = potential_members[:member_count]
+            
+            for member_id in selected_members:
+                member_joined = fake.date_time_between(start_date=joined_at, end_date='now').isoformat() + 'Z'
+                sphere_members.append((sphere_id, member_id, 'member', member_joined))
         
         cursor.executemany("""
             INSERT INTO sphere_members (sphere_id, user_id, role, joined_at)
@@ -237,6 +241,7 @@ def add_dummy_spheres(n=5):
         
         print(f"Inserted {spheres_to_create} dummy spheres into 'spheres' table.")
         print(f"Added {len(sphere_members)} sphere memberships.")
+        print(f"Left some users as non-members to test Join Sphere functionality.")
     except sqlite3.IntegrityError as e:
         print(f"Error inserting spheres: {e}")
     finally:

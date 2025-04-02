@@ -20,7 +20,7 @@
                 </ul>
             </nav>
             <a href="#" class="nav-icon" id="navBar" onclick="openNavBar()"><img src="../images/nav-open.png" alt= "Navigation"></a>
-            <div class="title">GatherSphere <img class="title-icon" href= "../Index.html" src="../images/Globe.png" alt = " "></div>
+            <a href="../Index.html" class="title-link"><div class="title">GatherSphere <img class="title-icon" src="../images/Globe.png" alt="Home"></div></a>
         </div>
     </header>
 <!--Account page title-->
@@ -389,48 +389,82 @@ document.querySelectorAll('.edit-button').forEach(button => {
         const td = document.getElementById('user' + field.charAt(0).toUpperCase() + field.slice(1));
         
         if (this.textContent === '[Edit]') {
-            td.contentEditable = true;
-            td.focus();
+            // If this is the birthday field, replace with an input element
+            if (field === 'birthday') {
+                const currentValue = td.textContent.trim();
+                td.innerHTML = `<input type="text" id="birthdayInput" placeholder="MM/DD/YYYY" value="${currentValue !== 'Birthday not set' ? currentValue : ''}" />`;
+                document.getElementById('birthdayInput').focus();
+            } else {
+                td.contentEditable = true;
+                td.focus();
+            }
             td.classList.add('editing');
             this.textContent = '[Save]';
         } else {
-            td.contentEditable = false;
+            let value;
+            let isValid = true;
+            
+            // Special handling for birthday field
+            if (field === 'birthday') {
+                const input = document.getElementById('birthdayInput');
+                value = input.value.trim();
+                
+                // Validate birthday format (MM/DD/YYYY)
+                if (value !== '') {
+                    const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+                    isValid = dateRegex.test(value);
+                    
+                    if (!isValid) {
+                        alert('Please enter a valid date in MM/DD/YYYY format');
+                        return;
+                    }
+                }
+                
+                // Restore the TD to regular text
+                td.innerHTML = value || 'Birthday not set';
+            } else {
+                td.contentEditable = false;
+                value = td.textContent;
+            }
+            
             td.classList.remove('editing');
             this.textContent = '[Edit]';
             
-            // Save the changes with authentication
-            const updatedData = {};
-            updatedData[field] = td.textContent;
-            
-            fetch(`/api/user/${currentUserId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify(updatedData)
-            })
-            .then(response => {
-                if (response.status === 401 || response.status === 403) {
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('userId');
-                    localStorage.removeItem('username');
-                    window.location.href = 'login.html';
-                    return;
-                }
-                return response.json();
-            })
-            .then(result => {
-                if (result && result.error) {
-                    alert('Error updating profile: ' + result.error);
+            if (isValid) {
+                // Save the changes with authentication
+                const updatedData = {};
+                updatedData[field] = value;
+                
+                fetch(`/api/user/${currentUserId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(updatedData)
+                })
+                .then(response => {
+                    if (response.status === 401 || response.status === 403) {
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('userId');
+                        localStorage.removeItem('username');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result && result.error) {
+                        alert('Error updating profile: ' + result.error);
+                        loadUserData();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to update profile');
                     loadUserData();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to update profile');
-                loadUserData();
-            });
+                });
+            }
         }
     });
 });

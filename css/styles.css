@@ -349,7 +349,7 @@ footer {
     box-shadow: 1px 2px 3px #6B5448;
 }
 
-.forum-settings {
+.forum-settings-container {
     background-color: #6B5448;
     color: #DBD9CD;
     display: flex;

@@ -39,6 +39,7 @@
     <h2 id="forumTitle">Loading sphere...</h2>
 </div>
 <div class="forum-description">
+    <p id="memberID">Members: 1</p>
     <p id="forumDescription">Loading description...</p>
 </div>
 <div class = "join-sphere">
@@ -46,12 +47,12 @@
 </div>
 
 <!--Forum Settings Button for Admin Users-->
-<div class="forum-settings">
+<div class="forum-settings-container">
     <button class="forum-settings-button" id="forumSettingsButton" style="display: none;">Edit Forum Settings</button>
 </div>
 
 <!--Forum Settings For Admin Users-->
-<div class="Forum Settings" id="forumSettingsSection" style="display: none;">
+<div class="forum-settings-container" id="forumSettingsSection" style="display: none;">
     <table class="forum-settings-table">
         <tr>
             <th>Sphere Title:</th>
@@ -88,8 +89,6 @@
         <input type="text" name="post-title" id="userPostTitle" placeholder="Title your post" required>
         <label for="post-content" class="content-label">Post Content:</label>
         <textarea name="post-content" id="post-content" cols="30" rows="10" placeholder="Write something here!" required></textarea>
-        <label for="post-tags" class="content-label">Tags:</label>
-        <input type="text" name="post-tags" id="userPostTags" placeholder="Add tags separated by commas (e.g., question, help, discussion)">
         <button type="submit" class="submit-post">Submit Post</button>
     </form>
 </div>

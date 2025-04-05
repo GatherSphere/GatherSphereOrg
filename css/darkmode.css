@@ -32,6 +32,9 @@ h1 {
 .container {
     margin: 20px;
     padding: 20px;
+    max-width: 1000px; /* NEW: prevent stretching on wide screens */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .subforum {
@@ -86,21 +89,29 @@ h1 {
     border-radius: 50%;
 }
 
+/* NEW: Mobile layout for subforum rows */
 @media screen and (max-width: 460px) {
     .container {
         margin: 10px;
         padding: 10px;
     }
     .subforum-row {
-        display: grid;
-        grid-template-columns: 25% 75%;
-        grid-template-rows: 65% 35%;
+        display: flex;
+        flex-direction: column; /* CHANGED: stack vertically on small screens */
+    }
+    .subforum-column {
+        width: 100%; /* NEW */
     }
     .subforum-stats {
         font-size: 12px;
     }
+    .subforum-icon img {
+        width: 40px;
+        height: 40px; /* NEW: slightly smaller icon on mobile */
+    }
 }
 
+/* Tablet responsiveness */
 @media screen and (min-width: 460px) and (max-width: 1024px) {
     .container {
         margin: 15px;
@@ -214,9 +225,20 @@ header {
 /* responsive navbar for smartphones and tablets */
 @media screen and (max-width: 1024px) {
     .navigation {
-        max-height: auto;
+        position: absolute; /* NEW: make nav float on mobile */
+        top: 70px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        flex-direction: column;
+        z-index: 999;
     }
-    
+
+    .nav-list {
+        flex-direction: column; /* NEW: vertical layout */
+        align-items: flex-start;
+    }
+
     .nav-item a {
         float: left;
         display: inline;
@@ -224,6 +246,7 @@ header {
         margin-inline: 3px;
         font-size: 12px;
         padding: 7px;
+        width: 100%; /* NEW: full width nav links */
     }
 
     .nav-item a:hover {
@@ -231,11 +254,11 @@ header {
         color: #D1C6B1;
         border-radius: 5px;
     }
-    
+
     .hide {
         display: none;
     }
-    
+
     .close-nav img {
         width: 30px;
         height: 30px;
@@ -252,10 +275,30 @@ header {
         margin-right: 5px;
         cursor: pointer;
     }
-    
+
     .title {
         font-size: 45px;
         display: inline;
+    }
+}
+
+/* Mobile responsiveness for the title and icon */
+@media screen and (max-width: 400px) {
+    .title {
+        font-size: 28px; 
+        white-space: nowrap; 
+    }
+
+    .title-icon {
+        width: 30px;
+        height: 30px;
+        margin-right: 5px;
+    }
+
+    header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 }
 
@@ -291,6 +334,21 @@ header {
     box-shadow: 1px 2px 3px #4C4F33;
 }
 
+/* NEW: responsive search box for mobile */
+@media screen and (max-width: 600px) {
+    .search-box {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .search-box select,
+    .search-box input,
+    .search-box button {
+        width: 100%;
+    }
+}
+
 /* footer */
 footer {
     margin-top: 20px;
@@ -299,6 +357,7 @@ footer {
     display: block;
     text-align: center;
 }
+
 
 /*#############################################################################*/
 

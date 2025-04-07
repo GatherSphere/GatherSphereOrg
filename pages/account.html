@@ -98,7 +98,7 @@
 </div>
 
 <!--Hidden Sphere Creation Section-->
-<div class="sphere-creation" id="createPost">
+<div class="sphere-creation" id="createPost" style="display: none;">
     <form id="sphereForm">
         <label for="sphere-title" class="sphere-title">Sphere Title:</label>
         <input type="text" name="sphere-title" id="sphereTitle" placeholder="Title your Sphere" required>
@@ -563,7 +563,7 @@ document.querySelector('.save-preference').addEventListener('click', function() 
 // Toggle sphere creation form
 document.querySelector('.create-sphere').addEventListener('click', function() {
     const createSphereForm = document.getElementById('createPost');
-    createSphereForm.style.display = createSphereForm.style.display === 'none' ? 'block' : 'none';
+    createSphereForm.style.display = createSphereForm.style.display === 'none' ? 'flex' : 'none';
 });
 
 // Handle sphere creation form submission

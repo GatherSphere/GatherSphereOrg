@@ -103,9 +103,20 @@ app.get('/api/posts/:id', (req, res) => {
 
 // Protected route - Create post
 app.post('/api/posts', authenticateToken, (req, res) => {
-    const { subject, content, tags, sphere_id } = req.body;
+    // Destructure, providing a default empty string for tags if not present
+    const { subject, content, tags = '', sphere_id } = req.body; // Default tags to ''
     const author_id = req.user.id;
     const created_at = new Date().toISOString();
+
+    // Basic validation
+    if (!subject || !content || !sphere_id) {
+         return res.status(400).json({ error: "Subject, content, and sphere_id are required." });
+    }
+     if (!author_id) {
+         // Should be caught by authenticateToken, but belts and suspenders
+         return res.status(401).json({ error: "Authentication failed." });
+     }
+
 
     // Check if user is a member of the sphere
     db.get(
@@ -113,22 +124,28 @@ app.post('/api/posts', authenticateToken, (req, res) => {
         [sphere_id, author_id],
         (err, member) => {
             if (err) {
-                return res.status(500).json({ error: err.message });
+                 console.error("DB Error checking membership:", err.message);
+                return res.status(500).json({ error: "Database error checking membership." });
             }
             if (!member) {
                 return res.status(403).json({ error: "You must be a member of the sphere to post" });
             }
-            
+
+            // User is a member, proceed to insert
             db.run(
+                // Ensure the parameter count matches the placeholders (?)
                 "INSERT INTO posts (subject, content, author_id, created_at, views, replies, tags, sphere_id) VALUES (?, ?, ?, ?, 0, 0, ?, ?)",
-                [subject, content, author_id, created_at, tags, sphere_id],
-                function(err) {
+                // Ensure the order and number of items in the array matches the VALUES placeholders
+                [subject, content, author_id, created_at, tags, sphere_id], // Pass the potentially empty 'tags'
+                function(err) { // Use function() to access this.lastID
                     if (err) {
-                        return res.status(500).json({ error: err.message });
+                        console.error("DB Error inserting post:", err.message);
+                        return res.status(500).json({ error: "Database error creating post." });
                     }
-                    res.json({ 
-                        message: "Post created successfully", 
-                        postId: this.lastID 
+                    console.log(`Post created with ID: ${this.lastID} in sphere ${sphere_id}`);
+                    res.status(201).json({ // Use 201 Created status
+                        message: "Post created successfully",
+                        postId: this.lastID
                     });
                 }
             );

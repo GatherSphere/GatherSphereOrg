@@ -138,7 +138,7 @@ header {
 .navigation {
     background-color: #6F7555;
     padding: 10px;
-    width: 65%;
+    width: 100%;
     display: inline-block;
     border-radius: 5px;
     max-height: 80px;
@@ -153,6 +153,7 @@ header {
     justify-content: flex-end;
     padding: 0;
     margin: 0;
+    flex-wrap: wrap;
 }
 
 .nav-item a {
@@ -214,7 +215,16 @@ header {
 @media screen and (max-width: 1024px) {
    
     .navigation {
-        max-height: auto;
+        width: 100%;
+        max-height: none;
+    }
+
+    .nav-list {
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 0;
+        margin: 0;
     }
     
     .nav-item a {
@@ -224,6 +234,7 @@ header {
         margin-inline: 3px;
         font-size: 12px;
         padding: 7px;
+        overflow-y: auto;
     }
 
     .nav-item a:hover {
@@ -256,6 +267,50 @@ header {
     .title {
         font-size: 45px;
         display: inline;
+    }
+}
+
+@media screen and (max-width: 600px) {
+
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+    }
+    .navigation {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-height: none;
+        padding: 10px;
+    }
+
+    .nav-list {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-item a {
+        margin: 5px 0;
+        font-size: 16px;
+        padding: 8px 12px;
+    }
+
+    .searchbox {
+        width: 90%;
+        margin-top: 10px;
+    }
+
+    .title {
+        font-size: 28px;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .nav-icon img,
+    .close-nav img {
+        width: 25px;
+        height: 25px;
     }
 }
 

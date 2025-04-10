@@ -1228,6 +1228,8 @@ footer {
     background-color: #DBD9CD;
     margin-top: 12px;
     border-radius: 8px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 .post-meta {

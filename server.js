@@ -494,32 +494,48 @@ app.get('/api/spheres/:id', (req, res) => {
 
 // Protected route - Create sphere
 app.post('/api/spheres', authenticateToken, (req, res) => {
-    const { name, description, tags } = req.body;
+    // CHANGE: Removed 'tags' from destructuring
+    const { name, description } = req.body;
     const creator_id = req.user.id;
     const created_at = new Date().toISOString();
 
+    // Basic validation
+    if (!name) {
+         return res.status(400).json({ error: "Sphere name is required." });
+    }
+    if (!creator_id) {
+        return res.status(401).json({ error: "Authentication failed." });
+    }
+
+    // CHANGE: Removed 'tags' column from INSERT statement
     db.run(
-        "INSERT INTO spheres (name, description, created_at, creator_id, tags) VALUES (?, ?, ?, ?, ?)",
-        [name, description, created_at, creator_id, tags],
+        "INSERT INTO spheres (name, description, created_at, creator_id) VALUES (?, ?, ?, ?)",
+        // CHANGE: Removed 'tags' from parameter array
+        [name, description, created_at, creator_id],
         function(err) {
             if (err) {
-                return res.status(500).json({ error: err.message });
+                 console.error("DB Error inserting sphere:", err.message);
+                return res.status(500).json({ error: "Database error creating sphere." });
             }
-            
+
+            const newSphereId = this.lastID; // Store the new ID
+
             // Add creator as a member with admin role
             db.run(
                 "INSERT INTO sphere_members (sphere_id, user_id, role, joined_at) VALUES (?, ?, ?, ?)",
-                [this.lastID, creator_id, 'admin', created_at],
+                [newSphereId, creator_id, 'admin', created_at],
                 (err) => {
                     if (err) {
-                        console.error('Error adding creator as member:', err);
+                        // Log error but don't fail the whole request, maybe handle cleanup later
+                        console.error(`Error adding creator ${creator_id} as member to sphere ${newSphereId}:`, err.message);
                     }
                 }
             );
-            
-            res.json({ 
-                message: "Sphere created successfully", 
-                sphereId: this.lastID 
+
+            console.log(`Sphere created with ID: ${newSphereId}`);
+            res.status(201).json({ // Use 201 Created status
+                message: "Sphere created successfully",
+                sphereId: newSphereId
             });
         }
     );
@@ -548,7 +564,7 @@ app.put('/api/spheres/:id', authenticateToken, (req, res) => {
                  description = COALESCE(?, description),
                  tags = COALESCE(?, tags)
                  WHERE id = ?`,
-                [name, description, tags, sphereId],
+                [name, description, tags, sphereId], // Keep tags parameter for update
                 function(err) {
                     if (err) {
                         return res.status(500).json({ error: err.message });

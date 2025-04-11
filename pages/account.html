@@ -576,7 +576,6 @@ document.getElementById('sphereForm').addEventListener('submit', async function(
     
     const name = document.getElementById('sphereTitle').value;
     const description = document.getElementById('sphereContent').value;
-    const tags = document.getElementById('sphereTags').value;
     
     try {
         const response = await fetch('/api/spheres', {
@@ -585,7 +584,7 @@ document.getElementById('sphereForm').addEventListener('submit', async function(
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`
             },
-            body: JSON.stringify({ name, description, tags })
+            body: JSON.stringify({ name, description })
         });
         
         if (response.status === 401 || response.status === 403) {
